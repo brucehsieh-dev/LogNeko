@@ -1,29 +1,30 @@
 package app.brucehsieh.logneko
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import org.jetbrains.compose.resources.painterResource
+import androidx.paging.compose.collectAsLazyPagingItems
+import app.brucehsieh.logneko.presentation.MainScreenViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 
-import logneko.composeapp.generated.resources.Res
-import logneko.composeapp.generated.resources.compose_multiplatform
-
+@ExperimentalCoroutinesApi
 @Composable
 @Preview
-fun App() {
+fun App(viewModel: MainScreenViewModel = koinViewModel()) {
+
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
+        val fileLines = viewModel.fileLines.collectAsLazyPagingItems()
+
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.primaryContainer)
@@ -31,17 +32,13 @@ fun App() {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Button(onClick = { showContent = !showContent }) {
+            Button(onClick = viewModel::flipShowFilePicker) {
                 Text("Click me!")
             }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+            LazyColumn {
+                items(fileLines.itemCount) { index ->
+                    val line = fileLines[index] ?: return@items
+                    Text(line)
                 }
             }
         }

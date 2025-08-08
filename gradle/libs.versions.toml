@@ -14,6 +14,9 @@ composeMultiplatform = "1.8.2"
 junit = "4.13.2"
 kotlin = "2.2.0"
 kotlinx-coroutines = "1.10.2"
+filekit = "0.10.0"
+koin-bom = "4.1.0"
+paging-appcash = "3.3.0-alpha02-0.5.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -27,6 +30,26 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 androidx-lifecycle-viewmodelCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+
+# DI
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
+koin-core = { module = "io.insert-koin:koin-core" }
+koin-compose = { module = "io.insert-koin:koin-compose" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel" }
+
+# UI
+paging-compose-appcash = { module = "app.cash.paging:paging-common", version.ref = "paging-appcash" }
+paging-compose-common-appcash = { module = "app.cash.paging:paging-compose-common", version.ref = "paging-appcash" }
+
+# UTIL
+fileKit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
+filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekit" }
+filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
+
+[bundles]
+koin = ["koin-core", "koin-compose", "koin-compose-viewmodel"]
+paging = ["paging-compose-appcash", "paging-compose-common-appcash"]
+fileKit = ["fileKit-core", "filekit-dialogs", "filekit-dialogs-compose"]
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
