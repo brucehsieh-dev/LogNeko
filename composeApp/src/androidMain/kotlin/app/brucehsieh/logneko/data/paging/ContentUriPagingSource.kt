@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import app.brucehsieh.logneko.data.modal.LineItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
@@ -12,18 +13,20 @@ import org.koin.core.component.get
 class ContentUriLinePagingSource(
     private val contentUri: Uri,
     private val pageSize: Int
-) : PagingSource<Int, String>(), KoinComponent {
+) : PagingSource<Int, LineItem>(), KoinComponent {
 
     private val context get() = get<Context>()
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, LineItem> {
         val startLine = params.key ?: 0
 
         return try {
             val lines = readLinesFromUri(context, contentUri, startLine, pageSize)
-
+            val lineItems = lines.mapIndexed { idx, text ->
+                LineItem(number = startLine + idx + 1, text = text)
+            }
             LoadResult.Page(
-                data = lines,
+                data = lineItems,
                 prevKey = if (startLine == 0) null else (startLine - pageSize).coerceAtLeast(0),
                 nextKey = if (lines.size < pageSize) null else startLine + lines.size
             )
@@ -32,7 +35,7 @@ class ContentUriLinePagingSource(
         }
     }
 
-    override fun getRefreshKey(state: PagingState<Int, String>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, LineItem>): Int? {
         return state.anchorPosition?.let { anchor ->
             val page = state.closestPageToPosition(anchor)
             page?.prevKey?.plus(pageSize) ?: page?.nextKey?.minus(pageSize)

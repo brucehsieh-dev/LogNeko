@@ -27,7 +27,7 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
     private val _showFilePicker = MutableStateFlow(false)
     val showFilePicker = _showFilePicker
 
-    val fileLines = _currentPlatformFile
+    val lineItems = _currentPlatformFile
         .filterNotNull()
         .flatMapLatest { platformFile ->
             when (getPlatform()) {
@@ -50,6 +50,7 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
 
     private fun launchFilePicker() {
         viewModelScope.launch {
+            _showFilePicker.value = false
             _currentPlatformFile.value = FileKit.openFilePicker() ?: return@launch
         }
     }

@@ -2,15 +2,11 @@ package app.brucehsieh.logneko.data.paging
 
 import androidx.paging.PagingSource
 import app.brucehsieh.logneko.core.paging.FileLinePagingSourceFactory
-import app.brucehsieh.logneko.data.paging.FileLinePagingSource
+import app.brucehsieh.logneko.data.modal.LineItem
 
-class JvmFileLinePagingSourceFactory(
-    private val filePath: String
-) : FileLinePagingSourceFactory {
+class JvmFileLinePagingSourceFactory(private val filePath: String) : FileLinePagingSourceFactory {
 
-    // TODO: take platform file instead of a file path
-
-    override fun createPagingSource(pageSize: Int): PagingSource<Int, String> {
+    override fun createPagingSource(pageSize: Int): PagingSource<Int, LineItem> {
         return FileLinePagingSource(filePath, pageSize)
     }
 }

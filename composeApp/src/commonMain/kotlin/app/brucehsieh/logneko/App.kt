@@ -1,16 +1,21 @@
 package app.brucehsieh.logneko
 
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.text.selection.DisableSelection
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
 import app.brucehsieh.logneko.presentation.MainScreenViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,7 +28,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun App(viewModel: MainScreenViewModel = koinViewModel()) {
 
     MaterialTheme {
-        val fileLines = viewModel.fileLines.collectAsLazyPagingItems()
+        val lineItems = viewModel.lineItems.collectAsLazyPagingItems()
 
         Column(
             modifier = Modifier
@@ -35,11 +40,31 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
             Button(onClick = viewModel::flipShowFilePicker) {
                 Text("Click me!")
             }
-            LazyColumn {
-                items(fileLines.itemCount) { index ->
-                    val line = fileLines[index] ?: return@items
-                    Text(line)
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                val listState = rememberLazyListState()
+                SelectionContainer {
+                    LazyColumn(state = listState) {
+                        items(lineItems.itemCount) { index ->
+                            val line = lineItems[index] ?: return@items
+                            Row(horizontalArrangement = Arrangement.Start) {
+                                DisableSelection {
+                                    Text(
+                                        text = "%,d".format(line.number),
+                                        modifier = Modifier.width(64.dp),
+                                        color = Color.Gray
+                                    )
+                                }
+                                Text(text = line.text, modifier = Modifier.weight(1f))
+                            }
+                        }
+                    }
                 }
+                VerticalScrollbar(
+                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                    adapter = rememberScrollbarAdapter(listState)
+                )
             }
         }
     }
