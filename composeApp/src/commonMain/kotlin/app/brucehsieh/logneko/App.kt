@@ -50,7 +50,7 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                 Text("Click me!")
             }
             if (!uiState.indexing) {
-                Button(onClick = { viewModel.onSearch(queryString = "l S") }) {
+                Button(onClick = { viewModel.onSearch(queryString = "h’s ") }) {
                     Text("Filter")
                 }
             }

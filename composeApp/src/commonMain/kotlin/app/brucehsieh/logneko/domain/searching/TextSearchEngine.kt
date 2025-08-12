@@ -14,6 +14,7 @@ import org.apache.lucene.index.IndexWriter
 import org.apache.lucene.index.IndexWriterConfig
 import org.apache.lucene.index.Term
 import org.apache.lucene.queryparser.classic.QueryParser
+import org.apache.lucene.queryparser.classic.QueryParserBase
 import org.apache.lucene.search.BooleanClause
 import org.apache.lucene.search.BooleanQuery
 import org.apache.lucene.search.IndexSearcher
@@ -54,10 +55,11 @@ class TextSearchEngine(override val fsDirectory: FSDirectory) : SearchEngine {
             println("clauseCount is greater than ${IndexSearcher.getMaxClauseCount()}")
         }
 
+        val escaped = QueryParserBase.escape(queryString)
         val pathQuery = TermQuery(Term(ABSOLUTE_PATH, file.absolutePath))
         val textQuery = QueryParser(LINE_TEXT, analyzer)
             .apply { allowLeadingWildcard = true }
-            .parse("*${queryString}*")
+            .parse("*${escaped}*")
         val combinedQuery = BooleanQuery.Builder()
             .add(pathQuery, BooleanClause.Occur.MUST)
             .add(textQuery, BooleanClause.Occur.MUST)
