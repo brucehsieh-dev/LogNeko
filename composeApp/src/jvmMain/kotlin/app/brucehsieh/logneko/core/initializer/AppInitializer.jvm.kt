@@ -1,6 +1,7 @@
 package app.brucehsieh.logneko.core.initializer
 
 import app.brucehsieh.logneko.core.di.dataModule
+import app.brucehsieh.logneko.core.di.domainModule
 import app.brucehsieh.logneko.core.di.platformModule
 import app.brucehsieh.logneko.core.di.presentationModule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -11,7 +12,7 @@ import org.koin.core.context.startKoin
 actual class AppInitializer : Initializer {
     init {
         startKoin {
-            modules(dataModule, presentationModule, platformModule())
+            modules(dataModule, domainModule, presentationModule, platformModule())
         }
     }
 }

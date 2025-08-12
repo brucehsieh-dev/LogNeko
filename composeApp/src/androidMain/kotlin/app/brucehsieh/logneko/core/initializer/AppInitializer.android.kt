@@ -2,6 +2,7 @@ package app.brucehsieh.logneko.core.initializer
 
 import android.app.Application
 import app.brucehsieh.logneko.core.di.dataModule
+import app.brucehsieh.logneko.core.di.domainModule
 import app.brucehsieh.logneko.core.di.platformModule
 import app.brucehsieh.logneko.core.di.presentationModule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,7 +17,7 @@ actual class AppInitializer(application: Application) : Initializer {
         startKoin {
             androidContext(application)
             androidLogger()
-            modules(dataModule, presentationModule, platformModule())
+            modules(dataModule, domainModule, presentationModule, platformModule())
         }
     }
 }
