@@ -2,12 +2,16 @@ package app.brucehsieh.logneko.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import app.brucehsieh.logneko.core.util.FileHelper
 import app.brucehsieh.logneko.core.util.Platform
 import app.brucehsieh.logneko.core.util.defaultScope
 import app.brucehsieh.logneko.core.util.getPlatform
 import app.brucehsieh.logneko.core.util.indexingScope
+import app.brucehsieh.logneko.data.modal.LineItem
+import app.brucehsieh.logneko.data.modal.PagingDataMode
+import app.brucehsieh.logneko.data.paging.LineReader
 import app.brucehsieh.logneko.domain.repository.FileLineRepository
 import app.brucehsieh.logneko.domain.searching.SearchEngine
 import io.github.vinceglb.filekit.FileKit
@@ -16,15 +20,19 @@ import io.github.vinceglb.filekit.absolutePath
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 import kotlin.time.measureTime
@@ -41,30 +49,17 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
     private val _showFilePicker = MutableStateFlow(false)
     val showFilePicker = _showFilePicker.asStateFlow()
 
-    val lineItems = _currentPlatformFile
-        .filterNotNull()
-        .flatMapLatest { platformFile ->
-            when (getPlatform()) {
-                Platform.ANDROID -> fileLineRepository
-                    .getFileLinesPagedByContentUri(platformFile.absolutePath(), pageSize = 100)
+    val lineItems = combine(_currentPlatformFile, fileLineRepository.pagingDataMode, ::Pair)
+        .transformLatest { (platformFile, pagingDataMode) ->
+            platformFile ?: return@transformLatest
 
-                Platform.DESKTOP -> fileLineRepository
-                    .getFileLinesPagedByPath(platformFile.absolutePath(), pageSize = 100)
-            }
+            val flow = getLineItemPagingData(platformFile, pagingDataMode).cachedIn(defaultScope)
+            emitAll(flow)
         }
-        .cachedIn(defaultScope)
 
     init {
-        _currentPlatformFile
-            .filterNotNull()
-            .mapLatest { platformFile ->
-                _uiState.value = UiState(indexing = true)
-                measureTime {
-                    searchEngine.index(platformFile.file)
-                }.also { println("@@@@: indexing took ${it.inWholeMilliseconds} ms") }
-                _uiState.value = UiState(indexing = false)
-            }
-            .launchIn(indexingScope)
+        _currentPlatformFile.indexFile()
+        _currentPlatformFile.loadInMemory()
     }
 
     fun flipShowFilePicker() {
@@ -104,4 +99,51 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
             _currentPlatformFile.value = FileKit.openFilePicker() ?: return@launch
         }
     }
+
+    /**
+     * Get the appropriate pager.
+     */
+    private fun getLineItemPagingData(
+        platformFile: PlatformFile,
+        pagingDataMode: PagingDataMode
+    ): Flow<PagingData<LineItem>> =
+        when (getPlatform()) {
+            Platform.DESKTOP -> {
+                val lineReader = get<LineReader> { parametersOf(platformFile.absolutePath()) }
+                when (pagingDataMode) {
+                    PagingDataMode.STREAMING -> fileLineRepository.streamPager(lineReader, pageSize = 500)
+                    PagingDataMode.IN_MEMORY -> fileLineRepository
+                        .memoryPager(lineReader, pageSize = 500)
+                        .also { println("@@@@ IN MEMORY @@@@@") }
+                }
+            }
+
+            Platform.ANDROID -> {
+                fileLineRepository.getFileLinesPagedByContentUri(
+                    platformFile.absolutePath(),
+                    pageSize = 100
+                )
+            }
+        }
+
+    /**
+     * Index the current file.
+     */
+    private fun Flow<PlatformFile?>.indexFile() = filterNotNull().mapLatest { platformFile ->
+        _uiState.value = UiState(indexing = true)
+        measureTime {
+            searchEngine.index(platformFile.file)
+        }.also { println("@@@@: indexing took ${it.inWholeMilliseconds} ms") }
+        _uiState.value = UiState(indexing = false)
+    }.launchIn(indexingScope)
+
+    /**
+     * Load the current file into memory.
+     */
+    private fun Flow<PlatformFile?>.loadInMemory() = filterNotNull().mapLatest { platformFile ->
+        measureTime {
+            val allLines = get<LineReader> { parametersOf(platformFile.absolutePath()) }.readAll { }
+            fileLineRepository.fullLoaded(allLines)
+        }.also { println("@@@@: full load took ${it.inWholeMilliseconds} ms") }
+    }.launchIn(indexingScope)
 }
