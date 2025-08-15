@@ -46,6 +46,7 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
     private val _currentPlatformFile = MutableStateFlow<PlatformFile?>(null)
+    val currentPlatformFile = _currentPlatformFile.asStateFlow()
     private val _showFilePicker = MutableStateFlow(false)
     val showFilePicker = _showFilePicker.asStateFlow()
 

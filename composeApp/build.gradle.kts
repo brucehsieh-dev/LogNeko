@@ -43,6 +43,7 @@ kotlin {
             implementation(libs.bundles.koin)
 
             // Presentation
+            implementation(compose.materialIconsExtended)
             implementation(libs.bundles.paging)
             implementation(libs.bundles.fileKit)
         }
