@@ -1,12 +1,14 @@
 package app.brucehsieh.logneko
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,11 +17,12 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.FileOpen
 import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationRail
@@ -88,16 +91,20 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
             }
             Box(
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.primaryContainer)
                     .safeContentPadding()
                     .fillMaxSize()
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    if (uiState.filteredLineItems.isNotEmpty()) {
-                        Button(onClick = viewModel::onSearchClear) {
-                            Text("Clear filter")
+                    if (uiState.queryString.isNotEmpty()) {
+                        FlowRow(modifier = Modifier.fillMaxWidth().padding(4.dp)) {
+                            InputChip(
+                                selected = true,
+                                onClick = viewModel::onSearchClear,
+                                label = { Text("Filter On") },
+                                trailingIcon = { Icon(Icons.Outlined.Close, contentDescription = "Close") }
+                            )
                         }
                     }
                     Box(
