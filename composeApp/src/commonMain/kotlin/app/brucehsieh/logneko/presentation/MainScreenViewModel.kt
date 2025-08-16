@@ -12,13 +12,13 @@ import app.brucehsieh.logneko.core.util.indexingScope
 import app.brucehsieh.logneko.data.modal.LineItem
 import app.brucehsieh.logneko.data.modal.PagingDataMode
 import app.brucehsieh.logneko.data.paging.LineReader
+import app.brucehsieh.logneko.domain.manager.TextSearchManager
 import app.brucehsieh.logneko.domain.repository.FileLineRepository
 import app.brucehsieh.logneko.domain.searching.SearchEngine
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.absolutePath
 import io.github.vinceglb.filekit.dialogs.openFilePicker
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.component.inject
@@ -42,6 +41,7 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
 
     private val fileLineRepository by inject<FileLineRepository>()
     private val searchEngine by inject<SearchEngine> { parametersOf(FileHelper.fsDirectory) }
+    private val textSearchManager by inject<TextSearchManager>()
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
@@ -71,21 +71,20 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    fun onSearch(queryString: String) {
+    fun onFilter(queryString: String) {
         if (queryString.isBlank()) return
         if (uiState.value.indexing) return
 
         viewModelScope.launch {
             measureTime {
-                withContext(Dispatchers.IO) {
-                    _currentPlatformFile.value?.file?.let { file ->
-                        _uiState.value = UiState(queryString = queryString, searching = true)
-                        _uiState.value = UiState(
-                            searching = false,
-                            queryString = queryString,
-                            filteredLineItems = searchEngine.search(file, queryString, 100)
-                        )
-                    }
+                _currentPlatformFile.value?.file?.let { file ->
+                    _uiState.value = UiState(queryString = queryString, searching = true)
+                    _uiState.value = UiState(
+                        searching = false,
+                        queryString = queryString,
+                        filteredLineItems = textSearchManager.filter(queryString)
+//                            filteredLineItems = searchEngine.search(file, queryString)
+                    )
                 }
             }.also { println("@@@@: searching took ${it.inWholeMilliseconds} ms") }
         }
@@ -114,8 +113,7 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
                 val lineReader = get<LineReader> { parametersOf(platformFile.absolutePath()) }
                 when (pagingDataMode) {
                     PagingDataMode.STREAMING -> fileLineRepository.streamPager(lineReader, pageSize = 500)
-                    PagingDataMode.IN_MEMORY -> fileLineRepository
-                        .memoryPager(lineReader, pageSize = 500)
+                    PagingDataMode.IN_MEMORY -> fileLineRepository.memoryPager(lineReader, pageSize = 500)
                         .also { println("@@@@ IN MEMORY @@@@@") }
                 }
             }

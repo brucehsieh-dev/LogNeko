@@ -158,7 +158,7 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                         sheetState = sheetState
                     ) {
                         FilterEditor(
-                            applyFilter = viewModel::onSearch,
+                            applyFilter = viewModel::onFilter,
                             onDismiss = { showBottomSheet = false },
                         )
                     }

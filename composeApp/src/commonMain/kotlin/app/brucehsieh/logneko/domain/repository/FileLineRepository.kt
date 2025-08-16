@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 interface FileLineRepository {
 
     val pagingDataMode: StateFlow<PagingDataMode>
-    val allLines: StateFlow<List<String>>
+    val allLines: StateFlow<List<LineItem>>
 
     fun streamPager(lineReader: LineReader, pageSize: Int): Flow<PagingData<LineItem>>
     fun memoryPager(lineReader: LineReader, pageSize: Int): Flow<PagingData<LineItem>>
@@ -34,5 +34,5 @@ interface FileLineRepository {
      */
     fun getFileLinesPagedByContentUri(contentUriString: String, pageSize: Int): Flow<PagingData<LineItem>>
 
-    fun fullLoaded(lines: List<String>)
+    fun fullLoaded(lineItems: List<LineItem>)
 }
