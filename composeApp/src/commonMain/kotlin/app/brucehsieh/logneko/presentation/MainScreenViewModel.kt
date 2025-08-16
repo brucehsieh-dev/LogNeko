@@ -46,6 +46,7 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
     private val _currentPlatformFile = MutableStateFlow<PlatformFile?>(null)
+    val currentPlatformFile = _currentPlatformFile.asStateFlow()
     private val _showFilePicker = MutableStateFlow(false)
     val showFilePicker = _showFilePicker.asStateFlow()
 
@@ -78,9 +79,10 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
             measureTime {
                 withContext(Dispatchers.IO) {
                     _currentPlatformFile.value?.file?.let { file ->
-                        _uiState.value = UiState(searching = true)
+                        _uiState.value = UiState(queryString = queryString, searching = true)
                         _uiState.value = UiState(
                             searching = false,
+                            queryString = queryString,
                             filteredLineItems = searchEngine.search(file, queryString, 100)
                         )
                     }

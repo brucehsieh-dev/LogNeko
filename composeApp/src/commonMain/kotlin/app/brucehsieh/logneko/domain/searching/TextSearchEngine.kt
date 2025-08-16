@@ -31,14 +31,18 @@ class TextSearchEngine(override val fsDirectory: FSDirectory) : SearchEngine {
 
     override suspend fun index(file: File) {
         IndexWriter(fsDirectory, indexWriterConfig).use { indexWriter ->
+
+            indexWriter.deleteDocuments(Term(ABSOLUTE_PATH, file.absolutePath))
+
             file.useLines { lines ->
                 lines.forEachIndexed { index, line ->
+                    val lineNumber = index + 1
                     val document = Document().apply {
                         add(StringField(FILENAME, file.name, Field.Store.YES)) // for
                         add(StringField(ABSOLUTE_PATH, file.absolutePath, Field.Store.YES))
                         add(TextField(LINE_TEXT, line, Field.Store.YES)) // for text search
-                        add(IntPoint(LINE_NUMBER, index + 1))  // for range/filter
-                        add(StringField(LINE_NUMBER, index.toString(), Field.Store.YES))
+                        add(IntPoint(LINE_NUMBER, lineNumber))  // for range/filter
+                        add(StringField(LINE_NUMBER, lineNumber.toString(), Field.Store.YES))
                         add(LongPoint(LAST_MODIFIED, file.lastModified())) // for timestamp filter
                         add(StoredField(LAST_MODIFIED, file.lastModified())) // for timestamp match
                     }
