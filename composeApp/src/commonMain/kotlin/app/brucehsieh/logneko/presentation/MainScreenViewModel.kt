@@ -20,15 +20,20 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.absolutePath
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.transformLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -36,6 +41,7 @@ import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 import kotlin.time.measureTime
 
+@FlowPreview
 @ExperimentalCoroutinesApi
 class MainScreenViewModel : ViewModel(), KoinComponent {
 
@@ -50,6 +56,8 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
     private val _showFilePicker = MutableStateFlow(false)
     val showFilePicker = _showFilePicker.asStateFlow()
 
+    private val _textQuery = MutableStateFlow("")
+
     val lineItems = combine(_currentPlatformFile, fileLineRepository.pagingDataMode, ::Pair)
         .transformLatest { (platformFile, pagingDataMode) ->
             platformFile ?: return@transformLatest
@@ -61,6 +69,18 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
     init {
         _currentPlatformFile.indexFile()
         _currentPlatformFile.loadInMemory()
+
+        _textQuery.debounce(300)
+            .distinctUntilChanged()
+            .mapLatest { query ->
+                // TODO: Apply .trim() is needed
+                _uiState.update { it.copy(textQuerying = true) }
+                textSearchManager.findOccurrences(query)
+            }
+            .onEach { matches ->
+                _uiState.update { it.copy(textQuerying = false, textQueryMatches = matches) }
+            }
+            .launchIn(viewModelScope)
     }
 
     fun flipShowFilePicker() {
@@ -71,17 +91,17 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    fun onFilter(queryString: String) {
+    fun onFilterApply(queryString: String) {
         if (queryString.isBlank()) return
         if (uiState.value.indexing) return
 
         viewModelScope.launch {
             measureTime {
                 _currentPlatformFile.value?.file?.let { file ->
-                    _uiState.value = UiState(queryString = queryString, searching = true)
+                    _uiState.value = UiState(filterQuery = queryString, filtering = true)
                     _uiState.value = UiState(
-                        searching = false,
-                        queryString = queryString,
+                        filtering = false,
+                        filterQuery = queryString,
                         filteredLineItems = textSearchManager.filter(queryString)
 //                            filteredLineItems = searchEngine.search(file, queryString)
                     )
@@ -90,8 +110,13 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    fun onSearchClear() {
-        _uiState.value = UiState()
+    fun onFilterClear() {
+        _uiState.value = uiState.value.copy(filterQuery = "")
+    }
+
+    fun onTextQueryChange(textQuery: String) {
+        _uiState.value = uiState.value.copy(textQuery = textQuery)
+        _textQuery.value = textQuery
     }
 
     private fun launchFilePicker() {

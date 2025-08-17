@@ -30,6 +30,7 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,10 +44,13 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import app.brucehsieh.logneko.presentation.MainScreenViewModel
 import app.brucehsieh.logneko.presentation.composable.DesktopVerticalScroll
 import app.brucehsieh.logneko.presentation.composable.FilterEditor
+import app.brucehsieh.logneko.presentation.composable.TextSearchBar
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(FlowPreview::class)
 @ExperimentalMaterial3Api
 @ExperimentalCoroutinesApi
 @Composable
@@ -60,6 +64,13 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
         val lineItems = viewModel.lineItems.collectAsLazyPagingItems()
         val uiState = viewModel.uiState.collectAsState().value
         val currentPlatformFile = viewModel.currentPlatformFile.collectAsState().value
+
+        LaunchedEffect(uiState.textQueryMatches) {
+            if (uiState.textQueryMatches.isNotEmpty()) {
+                println("@@@@: query matches: ${uiState.textQueryMatches}")
+                println("@@@@: query matches: ${uiState.textQueryMatches.size}")
+            }
+        }
 
         Row {
             NavigationRail {
@@ -97,11 +108,21 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    if (uiState.queryString.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        TextSearchBar(
+                            searchQuery = uiState.textQuery,
+                            onSearchQueryChange = viewModel::onTextQueryChange,
+                            onSearch = {},
+                        )
+                    }
+                    if (uiState.filterQuery.isNotEmpty()) {
                         FlowRow(modifier = Modifier.fillMaxWidth().padding(4.dp)) {
                             InputChip(
                                 selected = true,
-                                onClick = viewModel::onSearchClear,
+                                onClick = viewModel::onFilterClear,
                                 label = { Text("Filter On") },
                                 trailingIcon = { Icon(Icons.Outlined.Close, contentDescription = "Close") }
                             )
@@ -158,7 +179,7 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                         sheetState = sheetState
                     ) {
                         FilterEditor(
-                            applyFilter = viewModel::onFilter,
+                            applyFilter = viewModel::onFilterApply,
                             onDismiss = { showBottomSheet = false },
                         )
                     }
