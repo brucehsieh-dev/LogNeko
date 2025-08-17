@@ -39,12 +39,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
 import app.brucehsieh.logneko.presentation.MainScreenViewModel
 import app.brucehsieh.logneko.presentation.composable.DesktopVerticalScroll
 import app.brucehsieh.logneko.presentation.composable.FilterEditor
 import app.brucehsieh.logneko.presentation.composable.TextSearchBar
+import app.brucehsieh.logneko.presentation.theme.withFontFamily
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -57,7 +59,9 @@ import org.koin.compose.viewmodel.koinViewModel
 @Preview
 fun App(viewModel: MainScreenViewModel = koinViewModel()) {
 
-    MaterialTheme {
+    MaterialTheme(
+        typography = MaterialTheme.typography.withFontFamily(FontFamily.Monospace)
+    ) {
         var showBottomSheet by remember { mutableStateOf(false) }
         val sheetState = rememberModalBottomSheetState()
 
@@ -104,6 +108,7 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                 modifier = Modifier
                     .safeContentPadding()
                     .fillMaxSize()
+                    .padding(horizontal = 4.dp)
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -119,13 +124,18 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                         )
                     }
                     if (uiState.filterQuery.isNotEmpty()) {
-                        FlowRow(modifier = Modifier.fillMaxWidth().padding(4.dp)) {
-                            InputChip(
-                                selected = true,
-                                onClick = viewModel::onFilterClear,
-                                label = { Text("Filter On") },
-                                trailingIcon = { Icon(Icons.Outlined.Close, contentDescription = "Close") }
-                            )
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            FlowRow {
+                                InputChip(
+                                    selected = true,
+                                    onClick = viewModel::onFilterClear,
+                                    label = { Text("Filter On") },
+                                    trailingIcon = { Icon(Icons.Outlined.Close, contentDescription = "Close") }
+                                )
+                            }
                         }
                     }
                     Box(

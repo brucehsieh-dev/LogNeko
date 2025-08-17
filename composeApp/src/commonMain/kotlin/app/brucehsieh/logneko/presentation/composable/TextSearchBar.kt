@@ -36,14 +36,14 @@ fun TextSearchBar(
                 placeholder = { Text("Search") },
                 leadingIcon = {
                     Row {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
-                        if (searchQuery.isNotEmpty()) {
+                        if (searchQuery.isNotEmpty())
                             IconButton(
                                 onClick = { onSearchQueryChange("") }
                             ) {
                                 Icon(Icons.Default.Clear, contentDescription = "Clear")
                             }
-                        }
+                        else
+                            Icon(Icons.Default.Search, contentDescription = "Search")
                     }
                 },
                 trailingIcon = {
