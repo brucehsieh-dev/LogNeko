@@ -1,5 +1,6 @@
 package app.brucehsieh.logneko.data.paging
 
+import app.brucehsieh.logneko.data.modal.LineItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.RandomAccessFile
@@ -27,14 +28,14 @@ class JvmLineReader(private val filePath: String) : LineReader {
         }
     }
 
-    override suspend fun readAll(progress: (Int) -> Unit): List<String> = withContext(Dispatchers.IO) {
+    override suspend fun readAll(progress: (Int) -> Unit): List<LineItem> = withContext(Dispatchers.IO) {
         Files.newBufferedReader(Paths.get(filePath)).useLines { sequence ->
-            // Convert the sequence into an array
-            val out = ArrayList<String>(32_768)
-            var c = 0
-            sequence.forEach {
-                out.add(it); c++
-                if (c % 1000 == 0) progress(c)
+            val out = ArrayList<LineItem>(32_768)
+            var lineNumber = 0
+            for (text in sequence) {
+                lineNumber += 1
+                out.add(LineItem(lineNumber, text))
+                if (lineNumber % 1000 == 0) progress(lineNumber)
             }
             out
         }

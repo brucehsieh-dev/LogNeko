@@ -5,7 +5,7 @@ import androidx.paging.PagingState
 import app.brucehsieh.logneko.data.modal.LineItem
 
 class InMemoryPagingSource(
-    private val lines: List<String>,
+    private val lines: List<LineItem>,
     private val pageSize: Int
 ) : PagingSource<Int, LineItem>() {
 
@@ -18,8 +18,8 @@ class InMemoryPagingSource(
 
         return LoadResult.Page(
             // Get the slice of lines from the list, and map them to LineItem objects
-            data = lines.subList(startLine, endExclusive).mapIndexed { idx, text ->
-                LineItem(number = startLine + idx + 1, text = text)
+            data = lines.subList(startLine, endExclusive).mapIndexed { idx, lineItem ->
+                LineItem(number = startLine + idx + 1, text = lineItem.text)
             },
             prevKey = if (startLine == 0) null else (startLine - pageSize).coerceAtLeast(0),
             nextKey = if (endExclusive >= lines.size) null else endExclusive
