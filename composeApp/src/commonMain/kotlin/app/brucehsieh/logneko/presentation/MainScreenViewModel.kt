@@ -91,18 +91,18 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    fun onFilterApply(queryString: String) {
-        if (queryString.isBlank()) return
+    fun onFilterApply(filterQuery: String) {
+        if (filterQuery.isBlank()) return
         if (uiState.value.indexing) return
 
         viewModelScope.launch {
             measureTime {
                 _currentPlatformFile.value?.file?.let { file ->
-                    _uiState.value = UiState(filterQuery = queryString, filtering = true)
+                    _uiState.value = UiState(filterQuery = filterQuery, filtering = true)
                     _uiState.value = UiState(
                         filtering = false,
-                        filterQuery = queryString,
-                        filteredLineItems = textSearchManager.filter(queryString)
+                        filterQuery = filterQuery,
+                        filteredLineItems = textSearchManager.filter(filterQuery)
 //                            filteredLineItems = searchEngine.search(file, queryString)
                     )
                 }
