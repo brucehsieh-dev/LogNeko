@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
@@ -32,19 +31,22 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
 import app.brucehsieh.logneko.presentation.MainScreenViewModel
 import app.brucehsieh.logneko.presentation.composable.DesktopVerticalScroll
 import app.brucehsieh.logneko.presentation.composable.FilterEditor
+import app.brucehsieh.logneko.presentation.composable.LineNumber
+import app.brucehsieh.logneko.presentation.composable.LineText
+import app.brucehsieh.logneko.presentation.composable.NumberTextLazyList
 import app.brucehsieh.logneko.presentation.composable.TextSearchBar
 import app.brucehsieh.logneko.presentation.theme.withFontFamily
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -71,9 +73,14 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
 
         LaunchedEffect(uiState.textQueryMatches) {
             if (uiState.textQueryMatches.isNotEmpty()) {
-                println("@@@@: query matches: ${uiState.textQueryMatches}")
                 println("@@@@: query matches: ${uiState.textQueryMatches.size}")
+                println("@@@@: query matches: ${uiState.textQueryMatches.last()}")
             }
+        }
+
+        val matchesByLine = remember(uiState.textQueryMatches) {
+            // O(N) once per query change, O(1) lookup per row
+            uiState.textQueryMatches.associate { it.lineNumber to it.ranges }
         }
 
         Row {
@@ -145,35 +152,32 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                         SelectionContainer {
                             if (uiState.filteredLineItems.isNotEmpty()) {
                                 LazyColumn(state = listState) {
-                                    items(uiState.filteredLineItems) { lineItem ->
-                                        Row(horizontalArrangement = Arrangement.Start) {
-                                            DisableSelection {
-                                                Text(
-                                                    text = "%,d".format(lineItem.number),
-                                                    modifier = Modifier.width(64.dp),
-                                                    color = Color.Gray
-                                                )
+                                    items(uiState.filteredLineItems, key = { it.number }) { lineItem ->
+
+                                        val matchRanges by remember(lineItem.number, uiState.textQueryMatches) {
+                                            derivedStateOf {
+                                                if (uiState.textQueryMatches.isNotEmpty())
+                                                    matchesByLine[lineItem.number].orEmpty()
+                                                else
+                                                    emptyList()
                                             }
-                                            Text(text = lineItem.text, modifier = Modifier.weight(1f))
+                                        }
+
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.Start
+                                        ) {
+                                            LineNumber(lineItem = lineItem, modifier = Modifier.width(64.dp))
+                                            LineText(lineItem = lineItem, matchRanges = matchRanges)
                                         }
                                     }
                                 }
                             } else {
-                                LazyColumn(state = listState) {
-                                    items(lineItems.itemCount) { index ->
-                                        val line = lineItems[index] ?: return@items
-                                        Row(horizontalArrangement = Arrangement.Start) {
-                                            DisableSelection {
-                                                Text(
-                                                    text = "%,d".format(line.number),
-                                                    modifier = Modifier.width(64.dp),
-                                                    color = Color.Gray
-                                                )
-                                            }
-                                            Text(text = line.text, modifier = Modifier.weight(1f))
-                                        }
-                                    }
-                                }
+                                NumberTextLazyList(
+                                    lineItems = lineItems,
+                                    listState = listState,
+                                    matchesByLine = matchesByLine
+                                )
                             }
                         }
                         DesktopVerticalScroll(

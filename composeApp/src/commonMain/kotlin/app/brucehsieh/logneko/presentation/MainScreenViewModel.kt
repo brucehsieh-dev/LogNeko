@@ -67,7 +67,7 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
         }
 
     init {
-        _currentPlatformFile.indexFile()
+//        _currentPlatformFile.indexFile()
         _currentPlatformFile.loadInMemory()
 
         _textQuery.debounce(300)
@@ -98,20 +98,27 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
         viewModelScope.launch {
             measureTime {
                 _currentPlatformFile.value?.file?.let { file ->
-                    _uiState.value = UiState(filterQuery = filterQuery, filtering = true)
-                    _uiState.value = UiState(
-                        filtering = false,
-                        filterQuery = filterQuery,
-                        filteredLineItems = textSearchManager.filter(filterQuery)
+                    _uiState.update {
+                        it.copy(
+                            filtering = true,
+                            filterQuery = filterQuery,
+                        )
+                    }
+                    _uiState.update {
+                        it.copy(
+                            filtering = false,
+                            filterQuery = filterQuery,
+                            filteredLineItems = textSearchManager.filter(filterQuery)
 //                            filteredLineItems = searchEngine.search(file, queryString)
-                    )
+                        )
+                    }
                 }
             }.also { println("@@@@: searching took ${it.inWholeMilliseconds} ms") }
         }
     }
 
     fun onFilterClear() {
-        _uiState.value = uiState.value.copy(filterQuery = "")
+        _uiState.value = uiState.value.copy(filterQuery = "", filteredLineItems = emptyList())
     }
 
     fun onTextQueryChange(textQuery: String) {
@@ -138,7 +145,7 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
                 val lineReader = get<LineReader> { parametersOf(platformFile.absolutePath()) }
                 when (pagingDataMode) {
                     PagingDataMode.STREAMING -> fileLineRepository.streamPager(lineReader, pageSize = 500)
-                    PagingDataMode.IN_MEMORY -> fileLineRepository.memoryPager(lineReader, pageSize = 500)
+                    PagingDataMode.IN_MEMORY -> fileLineRepository.memoryPager(lineReader, pageSize = 1000)
                         .also { println("@@@@ IN MEMORY @@@@@") }
                 }
             }
