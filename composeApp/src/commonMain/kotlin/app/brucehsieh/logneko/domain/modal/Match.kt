@@ -1,14 +1,13 @@
 package app.brucehsieh.logneko.domain.modal
 
 /**
- * A single line that contains one or more literal matches of the query.
+ * A single line's search result.
  *
- * @param lineNumber The line number in the file.
- * @param lineText The text of the line.
- * @param ranges A list of ranges that match the query. [start, endExclusive) for each occurrence
+ * @param lineNumber 1-based line number.
+ * @param ranges     Match spans as half-open ranges built with [start, endExclusive),
+ *                   Overlaps are allowed and intentionally not merged.
  */
 data class Match(
     val lineNumber: Int,
-    val lineText: String,
     val ranges: List<IntRange>
 )
