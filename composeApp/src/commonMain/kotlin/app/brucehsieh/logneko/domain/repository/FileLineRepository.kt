@@ -21,14 +21,6 @@ interface FileLineRepository {
     /**
      * Retrieves a Flow of PagingData containing file lines.
      *
-     * @param filePath The path to the file.
-     * @param pageSize The number of lines per page. One page corresponds to one line of text.
-     */
-    fun getFileLinesPagedByPath(filePath: String, pageSize: Int): Flow<PagingData<LineItem>>
-
-    /**
-     * Retrieves a Flow of PagingData containing file lines.
-     *
      * @param contentUriString The content URI of the file, Android specific.
      * @param pageSize The number of lines per page. One page corresponds to one line of text.
      */

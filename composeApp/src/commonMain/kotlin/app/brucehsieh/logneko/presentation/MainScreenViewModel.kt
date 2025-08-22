@@ -93,20 +93,15 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
 
         viewModelScope.launch {
             measureTime {
-                _currentPlatformFile.value?.file?.let { file ->
-                    _uiState.update {
-                        it.copy(
-                            filtering = true,
-                            filterQuery = filterQuery,
-                        )
-                    }
-                    _uiState.update {
-                        it.copy(
-                            filtering = false,
-                            filterQuery = filterQuery,
-                            filteredLineItems = textSearchManager.filter(filterQuery)
-                        )
-                    }
+                _uiState.update {
+                    it.copy(filtering = true, filterQuery = filterQuery)
+                }
+                _uiState.update {
+                    it.copy(
+                        filtering = false,
+                        filterQuery = filterQuery,
+                        filteredLineItems = textSearchManager.filter(filterQuery)
+                    )
                 }
             }.also { println("@@@@: searching took ${it.inWholeMilliseconds} ms") }
         }

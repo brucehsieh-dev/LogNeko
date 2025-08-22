@@ -52,18 +52,6 @@ class FileLineRepositoryImpl : FileLineRepository, KoinComponent {
             }
         ).flow
 
-    override fun getFileLinesPagedByPath(filePath: String, pageSize: Int): Flow<PagingData<LineItem>> =
-        Pager(
-            config = PagingConfig(
-                pageSize = pageSize,
-                enablePlaceholders = false
-            ),
-            pagingSourceFactory = {
-                get<FileLinePagingSourceFactory>(named(JVM_FILE)) { parametersOf(filePath) }
-                    .createPagingSource(pageSize)
-            }
-        ).flow
-
     override fun getFileLinesPagedByContentUri(contentUriString: String, pageSize: Int): Flow<PagingData<LineItem>> =
         Pager(
             config = PagingConfig(

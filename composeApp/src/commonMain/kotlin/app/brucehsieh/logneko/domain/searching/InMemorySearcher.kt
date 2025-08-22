@@ -14,10 +14,6 @@ class InMemorySearcher(private var lineItems: List<LineItem> = emptyList()) {
         this.lineItems = lineItems
     }
 
-    fun invalidate() {
-        lineItems = emptyList()
-    }
-
     /**
      * Search all loaded lines for [textQuery].
      *
@@ -54,26 +50,6 @@ class InMemorySearcher(private var lineItems: List<LineItem> = emptyList()) {
             }
         }
         return out
-    }
-
-    fun filterLineNumbers(queryString: String, ignoreCase: Boolean = true, limit: Int = Int.MAX_VALUE): List<Int> {
-        if (queryString.isEmpty()) return emptyList()
-        val out = ArrayList<Int>()
-        for (lineItem in lineItems) {
-            if (lineItem.text.indexOf(queryString, startIndex = 0, ignoreCase = ignoreCase) >= 0) {
-                out += lineItem.number
-                if (out.size >= limit) break
-            }
-        }
-        return out
-    }
-
-    fun anyMatch(query: String, ignoreCase: Boolean = true): Boolean {
-        if (query.isEmpty()) return false
-        for (lineItem in lineItems) {
-            if (lineItem.text.indexOf(query, startIndex = 0, ignoreCase = ignoreCase) >= 0) return true
-        }
-        return false
     }
 
     private fun findAllRanges(
