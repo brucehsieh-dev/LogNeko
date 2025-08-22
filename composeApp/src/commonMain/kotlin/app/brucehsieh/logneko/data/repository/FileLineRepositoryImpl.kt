@@ -3,7 +3,7 @@ package app.brucehsieh.logneko.data.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import app.brucehsieh.logneko.core.paging.FileLinePagingSourceFactory
+import app.brucehsieh.logneko.data.paging.FileLinePagingSourceFactory
 import app.brucehsieh.logneko.data.CONTENT_URL
 import app.brucehsieh.logneko.data.JVM_FILE
 import app.brucehsieh.logneko.data.modal.LineItem
