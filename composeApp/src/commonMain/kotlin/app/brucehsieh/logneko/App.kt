@@ -17,15 +17,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.FileOpen
-import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -42,6 +38,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
 import app.brucehsieh.logneko.presentation.MainScreenViewModel
+import app.brucehsieh.logneko.presentation.composable.AppNavigationRail
 import app.brucehsieh.logneko.presentation.composable.DesktopVerticalScroll
 import app.brucehsieh.logneko.presentation.composable.FilterEditor
 import app.brucehsieh.logneko.presentation.composable.LineNumber
@@ -78,33 +75,13 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
         }
 
         Row {
-            NavigationRail {
-                NavigationRailItem(
-                    selected = false,
-                    onClick = viewModel::openFilePicker,
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Outlined.FileOpen,
-                            contentDescription = "Open file"
-                        )
-                    },
-                    label = { Text("File") }
-                )
-                NavigationRailItem(
-                    selected = false,
-                    onClick = {
-                        showBottomSheet = !showBottomSheet
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Outlined.Tune,
-                            contentDescription = "Set filters"
-                        )
-                    },
-                    enabled = currentPlatformFile != null,
-                    label = { Text("Filter") }
-                )
-            }
+            AppNavigationRail(
+                isFilterEnabled = currentPlatformFile != null,
+                onOpenFile = viewModel::openFilePicker,
+                onToggleFilterSheet = {
+                    showBottomSheet = !showBottomSheet
+                }
+            )
             Box(
                 modifier = Modifier
                     .safeContentPadding()
