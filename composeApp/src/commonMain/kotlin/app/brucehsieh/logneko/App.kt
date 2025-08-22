@@ -44,7 +44,7 @@ import app.brucehsieh.logneko.presentation.composable.FilterEditor
 import app.brucehsieh.logneko.presentation.composable.LineNumber
 import app.brucehsieh.logneko.presentation.composable.LineText
 import app.brucehsieh.logneko.presentation.composable.NumberTextLazyList
-import app.brucehsieh.logneko.presentation.composable.TextSearchBar
+import app.brucehsieh.logneko.presentation.composable.SearchHeader
 import app.brucehsieh.logneko.presentation.theme.withFontFamily
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -88,19 +88,14 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                     .fillMaxSize()
                     .padding(horizontal = 4.dp)
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        TextSearchBar(
-                            searchQuery = uiState.textQuery,
-                            onSearchQueryChange = viewModel::onTextQueryChange,
-                            onSearch = {},
-                        )
-                    }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+                    // Search header (text search bar)
+                    SearchHeader(
+                        searchQuery = uiState.textQuery,
+                        onQueryChange = viewModel::onTextQueryChange
+                    )
+
                     if (uiState.filterQuery.isNotEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxWidth(),
