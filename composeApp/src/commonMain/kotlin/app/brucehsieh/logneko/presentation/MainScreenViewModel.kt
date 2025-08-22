@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import app.brucehsieh.logneko.core.util.FileHelper
 import app.brucehsieh.logneko.core.util.Platform
 import app.brucehsieh.logneko.core.util.defaultScope
 import app.brucehsieh.logneko.core.util.getPlatform
@@ -14,7 +13,6 @@ import app.brucehsieh.logneko.data.modal.PagingDataMode
 import app.brucehsieh.logneko.data.paging.LineReader
 import app.brucehsieh.logneko.domain.manager.TextSearchManager
 import app.brucehsieh.logneko.domain.repository.FileLineRepository
-import app.brucehsieh.logneko.domain.searching.SearchEngine
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.absolutePath
@@ -46,7 +44,6 @@ import kotlin.time.measureTime
 class MainScreenViewModel : ViewModel(), KoinComponent {
 
     private val fileLineRepository by inject<FileLineRepository>()
-    private val searchEngine by inject<SearchEngine> { parametersOf(FileHelper.fsDirectory) }
     private val textSearchManager by inject<TextSearchManager>()
 
     private val _uiState = MutableStateFlow(UiState())
@@ -67,7 +64,6 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
         }
 
     init {
-//        _currentPlatformFile.indexFile()
         _currentPlatformFile.loadInMemory()
 
         _textQuery.debounce(300)
@@ -109,7 +105,6 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
                             filtering = false,
                             filterQuery = filterQuery,
                             filteredLineItems = textSearchManager.filter(filterQuery)
-//                            filteredLineItems = searchEngine.search(file, queryString)
                         )
                     }
                 }
@@ -157,17 +152,6 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
                 )
             }
         }
-
-    /**
-     * Index the current file.
-     */
-    private fun Flow<PlatformFile?>.indexFile() = filterNotNull().mapLatest { platformFile ->
-        _uiState.value = UiState(indexing = true)
-        measureTime {
-            searchEngine.index(platformFile.file)
-        }.also { println("@@@@: indexing took ${it.inWholeMilliseconds} ms") }
-        _uiState.value = UiState(indexing = false)
-    }.launchIn(indexingScope)
 
     /**
      * Load the current file into memory.
