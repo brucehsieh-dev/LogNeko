@@ -1,18 +1,13 @@
 package app.brucehsieh.logneko.presentation.composable
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import app.brucehsieh.logneko.data.modal.LineItem
 
@@ -33,31 +28,15 @@ fun LogLinePane(
     matchesByLine: Map<Int, List<IntRange>>,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier.fillMaxSize()
-    ) {
+    Box(modifier = modifier.fillMaxSize()) {
         SelectionContainer {
             if (filteredLineItems.isNotEmpty()) {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(
-                        count = filteredLineItems.size,
-                        key = { filteredLineItems[it].number }
-                    ) { index ->
-                        val lineItem = filteredLineItems[index]
-
-                        val matchRanges by remember(lineItem.number, matchesByLine) {
-                            derivedStateOf { matchesByLine[lineItem.number].orEmpty() }
-                        }
-
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            LineNumber(lineItem = lineItem, modifier = Modifier.width(64.dp))
-                            LineText(lineItem = lineItem, matchRanges = matchRanges)
-                        }
-                    }
-                }
+                FilteredNumberTextList(
+                    filteredLineItems = filteredLineItems,
+                    listState = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    matchesByLine = matchesByLine
+                )
             } else {
                 NumberTextLazyList(
                     lineItems = pagingItems,

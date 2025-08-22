@@ -1,7 +1,6 @@
 package app.brucehsieh.logneko.presentation.composable
 
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,7 +32,7 @@ fun NumberTextLazyList(
 ) {
     LazyColumn(
         state = listState,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
     ) {
         items(
             count = lineItems.itemCount,
