@@ -42,17 +42,17 @@ import org.koin.compose.viewmodel.koinViewModel
 @Preview
 fun App(viewModel: MainScreenViewModel = koinViewModel()) {
 
-    MaterialTheme(
-        typography = MaterialTheme.typography.withFontFamily(FontFamily.Monospace)
-    ) {
+    MaterialTheme(typography = MaterialTheme.typography.withFontFamily(FontFamily.Monospace)) {
+        // Hoisted states
         var showBottomSheet by remember { mutableStateOf(false) }
         val sheetState = rememberModalBottomSheetState()
+        val listState = rememberLazyListState()
 
+        // Stable, memoized states
         val lineItems = viewModel.lineItems.collectAsLazyPagingItems()
         val uiState = viewModel.uiState.collectAsState().value
-        val currentPlatformFile = viewModel.currentPlatformFile.collectAsState().value
 
-        val listState = rememberLazyListState()
+        // Memoize matches map to reduce downstream recompositions
         val matchesByLine = remember(uiState) { uiState.matchesByLine }
 
         LaunchedEffect(uiState.matchesByLine) {
@@ -63,7 +63,7 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
 
         Row {
             AppNavigationRail(
-                isFilterEnabled = currentPlatformFile != null,
+                isFilterEnabled = uiState.hasFile,
                 onOpenFile = viewModel::openFilePicker,
                 onToggleFilterSheet = {
                     showBottomSheet = !showBottomSheet
@@ -98,7 +98,7 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                     )
                 }
 
-                if (currentPlatformFile != null && showBottomSheet) {
+                if (uiState.hasFile && showBottomSheet) {
                     ModalBottomSheet(
                         onDismissRequest = { showBottomSheet = false },
                         sheetState = sheetState

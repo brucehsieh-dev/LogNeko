@@ -48,8 +48,6 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
     val uiState = _uiState.asStateFlow()
 
     private val _currentPlatformFile = MutableStateFlow<PlatformFile?>(null)
-    val currentPlatformFile = _currentPlatformFile.asStateFlow()
-
     private val _textQuery = MutableStateFlow("")
 
     val lineItems = combine(_currentPlatformFile, fileLineRepository.pagingDataMode, ::Pair)
@@ -92,7 +90,9 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
 
     fun openFilePicker() {
         viewModelScope.launch {
-            _currentPlatformFile.value = FileKit.openFilePicker() ?: return@launch
+            val picked = FileKit.openFilePicker() ?: return@launch
+            _currentPlatformFile.value = picked
+            _uiState.update { it.copy(hasFile = true) }
         }
     }
 

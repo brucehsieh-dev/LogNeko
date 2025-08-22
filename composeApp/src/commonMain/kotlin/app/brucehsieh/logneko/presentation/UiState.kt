@@ -3,6 +3,7 @@ package app.brucehsieh.logneko.presentation
 import app.brucehsieh.logneko.data.modal.LineItem
 
 data class UiState(
+    val hasFile: Boolean = false,
     val filtering: Boolean = false,
     val filterQuery: String = "",
     val filteredLineItems: List<LineItem> = emptyList(),
