@@ -3,7 +3,6 @@ package app.brucehsieh.logneko
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,14 +14,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +34,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import app.brucehsieh.logneko.presentation.MainScreenViewModel
 import app.brucehsieh.logneko.presentation.composable.AppNavigationRail
 import app.brucehsieh.logneko.presentation.composable.DesktopVerticalScroll
+import app.brucehsieh.logneko.presentation.composable.FilterChipRow
 import app.brucehsieh.logneko.presentation.composable.FilterEditor
 import app.brucehsieh.logneko.presentation.composable.LineNumber
 import app.brucehsieh.logneko.presentation.composable.LineText
@@ -96,21 +91,12 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                         onQueryChange = viewModel::onTextQueryChange
                     )
 
-                    if (uiState.filterQuery.isNotEmpty()) {
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.CenterStart
-                        ) {
-                            FlowRow {
-                                InputChip(
-                                    selected = true,
-                                    onClick = viewModel::onFilterClear,
-                                    label = { Text("Filter On") },
-                                    trailingIcon = { Icon(Icons.Outlined.Close, contentDescription = "Close") }
-                                )
-                            }
-                        }
-                    }
+                    // Filter chip row (visible only when filter is active)
+                    FilterChipRow(
+                        filterQuery = uiState.filterQuery,
+                        onClear = viewModel::onFilterClear
+                    )
+
                     Box(
                         modifier = Modifier.fillMaxSize()
                     ) {
