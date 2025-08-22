@@ -71,23 +71,17 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
         val uiState = viewModel.uiState.collectAsState().value
         val currentPlatformFile = viewModel.currentPlatformFile.collectAsState().value
 
-        LaunchedEffect(uiState.textQueryMatches) {
-            if (uiState.textQueryMatches.isNotEmpty()) {
-                println("@@@@: query matches: ${uiState.textQueryMatches.size}")
-                println("@@@@: query matches: ${uiState.textQueryMatches.last()}")
+        LaunchedEffect(uiState.matchesByLine) {
+            if (uiState.matchesByLine.isNotEmpty()) {
+                println("@@@@: query matches: ${uiState.matchesByLine.size}")
             }
-        }
-
-        val matchesByLine = remember(uiState.textQueryMatches) {
-            // O(N) once per query change, O(1) lookup per row
-            uiState.textQueryMatches.associate { it.lineNumber to it.ranges }
         }
 
         Row {
             NavigationRail {
                 NavigationRailItem(
                     selected = false,
-                    onClick = viewModel::flipShowFilePicker,
+                    onClick = viewModel::openFilePicker,
                     icon = {
                         Icon(
                             imageVector = Icons.Outlined.FileOpen,
@@ -107,7 +101,7 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                             contentDescription = "Set filters"
                         )
                     },
-                    enabled = currentPlatformFile != null && !uiState.indexing,
+                    enabled = currentPlatformFile != null,
                     label = { Text("Filter") }
                 )
             }
@@ -154,12 +148,9 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                                 LazyColumn(state = listState) {
                                     items(uiState.filteredLineItems, key = { it.number }) { lineItem ->
 
-                                        val matchRanges by remember(lineItem.number, uiState.textQueryMatches) {
+                                        val matchRanges by remember(lineItem.number, uiState.matchesByLine) {
                                             derivedStateOf {
-                                                if (uiState.textQueryMatches.isNotEmpty())
-                                                    matchesByLine[lineItem.number].orEmpty()
-                                                else
-                                                    emptyList()
+                                                uiState.matchesByLine[lineItem.number].orEmpty()
                                             }
                                         }
 
@@ -176,7 +167,7 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                                 NumberTextLazyList(
                                     lineItems = lineItems,
                                     listState = listState,
-                                    matchesByLine = matchesByLine
+                                    matchesByLine = uiState.matchesByLine
                                 )
                             }
                         }
@@ -187,7 +178,7 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                     }
                 }
 
-                if (currentPlatformFile != null && !uiState.indexing && showBottomSheet) {
+                if (currentPlatformFile != null && showBottomSheet) {
                     ModalBottomSheet(
                         onDismissRequest = { showBottomSheet = false },
                         sheetState = sheetState

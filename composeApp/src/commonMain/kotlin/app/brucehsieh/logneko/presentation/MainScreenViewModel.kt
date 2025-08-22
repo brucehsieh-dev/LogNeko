@@ -5,9 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import app.brucehsieh.logneko.core.util.Platform
-import app.brucehsieh.logneko.core.util.defaultScope
 import app.brucehsieh.logneko.core.util.getPlatform
-import app.brucehsieh.logneko.core.util.indexingScope
 import app.brucehsieh.logneko.data.modal.LineItem
 import app.brucehsieh.logneko.data.modal.PagingDataMode
 import app.brucehsieh.logneko.data.paging.LineReader
@@ -48,62 +46,66 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
+
     private val _currentPlatformFile = MutableStateFlow<PlatformFile?>(null)
     val currentPlatformFile = _currentPlatformFile.asStateFlow()
-    private val _showFilePicker = MutableStateFlow(false)
-    val showFilePicker = _showFilePicker.asStateFlow()
 
     private val _textQuery = MutableStateFlow("")
 
     val lineItems = combine(_currentPlatformFile, fileLineRepository.pagingDataMode, ::Pair)
         .transformLatest { (platformFile, pagingDataMode) ->
             platformFile ?: return@transformLatest
-
-            val flow = getLineItemPagingData(platformFile, pagingDataMode).cachedIn(defaultScope)
-            emitAll(flow)
-        }
+            emitAll(getLineItemPagingData(platformFile, pagingDataMode))
+        }.cachedIn(viewModelScope)
 
     init {
-        _currentPlatformFile.loadInMemory()
+        _currentPlatformFile
+            .filterNotNull()
+            .mapLatest { platformFile ->
+                val duration = measureTime {
+                    val reader = get<LineReader> { parametersOf(platformFile.absolutePath()) }
 
-        _textQuery.debounce(300)
+                    // TODO: Hook progress into UI if desired
+                    val all = reader.readAll { }
+
+                    fileLineRepository.fullLoaded(all)
+                }
+                println("@@@@: full load took ${duration.inWholeMilliseconds} ms")
+            }
+            .launchIn(viewModelScope)
+
+        _textQuery
+            .debounce(300)
             .distinctUntilChanged()
             .mapLatest { query ->
-                // TODO: Apply .trim() is needed
                 _uiState.update { it.copy(textQuerying = true) }
                 textSearchManager.findOccurrences(query)
             }
             .onEach { matches ->
-                _uiState.update { it.copy(textQuerying = false, textQueryMatches = matches) }
+                val matchesByLine = matches.associate { it.lineNumber to it.ranges }
+                _uiState.update {
+                    it.copy(textQuerying = false, matchesByLine = matchesByLine)
+                }
             }
             .launchIn(viewModelScope)
     }
 
-    fun flipShowFilePicker() {
-        _showFilePicker.value = !showFilePicker.value
-
-        if (showFilePicker.value) {
-            launchFilePicker()
+    fun openFilePicker() {
+        viewModelScope.launch {
+            _currentPlatformFile.value = FileKit.openFilePicker() ?: return@launch
         }
     }
 
     fun onFilterApply(filterQuery: String) {
         if (filterQuery.isBlank()) return
-        if (uiState.value.indexing) return
 
         viewModelScope.launch {
-            measureTime {
-                _uiState.update {
-                    it.copy(filtering = true, filterQuery = filterQuery)
-                }
-                _uiState.update {
-                    it.copy(
-                        filtering = false,
-                        filterQuery = filterQuery,
-                        filteredLineItems = textSearchManager.filter(filterQuery)
-                    )
-                }
-            }.also { println("@@@@: searching took ${it.inWholeMilliseconds} ms") }
+            val elapsed = measureTime {
+                _uiState.update { it.copy(filtering = true, filterQuery = filterQuery) }
+                val filtered = textSearchManager.filter(filterQuery)
+                _uiState.update { it.copy(filtering = false, filterQuery = filterQuery, filteredLineItems = filtered) }
+            }
+            println("@@@@: searching took ${elapsed.inWholeMilliseconds} ms")
         }
     }
 
@@ -112,15 +114,8 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
     }
 
     fun onTextQueryChange(textQuery: String) {
-        _uiState.value = uiState.value.copy(textQuery = textQuery)
+        _uiState.update { it.copy(textQuery = textQuery) }
         _textQuery.value = textQuery
-    }
-
-    private fun launchFilePicker() {
-        viewModelScope.launch {
-            _showFilePicker.value = false
-            _currentPlatformFile.value = FileKit.openFilePicker() ?: return@launch
-        }
     }
 
     /**
@@ -147,14 +142,4 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
                 )
             }
         }
-
-    /**
-     * Load the current file into memory.
-     */
-    private fun Flow<PlatformFile?>.loadInMemory() = filterNotNull().mapLatest { platformFile ->
-        measureTime {
-            val allLines = get<LineReader> { parametersOf(platformFile.absolutePath()) }.readAll { }
-            fileLineRepository.fullLoaded(allLines)
-        }.also { println("@@@@: full load took ${it.inWholeMilliseconds} ms") }
-    }.launchIn(indexingScope)
 }

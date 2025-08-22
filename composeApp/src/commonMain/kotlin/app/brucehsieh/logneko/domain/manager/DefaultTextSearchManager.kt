@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 
 class DefaultTextSearchManager(
     private val inMemorySearcher: InMemorySearcher,
-    private val ioDispatcher: CoroutineDispatcher = DefaultCoroutineDispatchers.default
+    private val ioDispatcher: CoroutineDispatcher = DefaultCoroutineDispatchers.io
 ) : TextSearchManager {
 
     override suspend fun findOccurrences(textQuery: String, ignoreCase: Boolean, limit: Int): List<Match> =
