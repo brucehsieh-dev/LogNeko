@@ -3,7 +3,7 @@ package app.brucehsieh.logneko.data.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import app.brucehsieh.logneko.core.paging.FileLinePagingSourceFactory
+import app.brucehsieh.logneko.data.paging.FileLinePagingSourceFactory
 import app.brucehsieh.logneko.data.CONTENT_URL
 import app.brucehsieh.logneko.data.JVM_FILE
 import app.brucehsieh.logneko.data.modal.LineItem
@@ -49,18 +49,6 @@ class FileLineRepositoryImpl : FileLineRepository, KoinComponent {
             ),
             pagingSourceFactory = {
                 InMemoryPagingSource(allLines.value, pageSize)
-            }
-        ).flow
-
-    override fun getFileLinesPagedByPath(filePath: String, pageSize: Int): Flow<PagingData<LineItem>> =
-        Pager(
-            config = PagingConfig(
-                pageSize = pageSize,
-                enablePlaceholders = false
-            ),
-            pagingSourceFactory = {
-                get<FileLinePagingSourceFactory>(named(JVM_FILE)) { parametersOf(filePath) }
-                    .createPagingSource(pageSize)
             }
         ).flow
 

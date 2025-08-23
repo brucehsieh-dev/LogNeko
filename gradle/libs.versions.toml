@@ -17,7 +17,7 @@ kotlinx-coroutines = "1.10.2"
 filekit = "0.10.0"
 koin-bom = "4.1.0"
 paging-appcash = "3.3.0-alpha02-0.5.1"
-lucene = "10.2.2"
+#lucene = "10.2.2"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -39,8 +39,8 @@ koin-compose = { module = "io.insert-koin:koin-compose" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel" }
 
 # DOMAIN
-lucene-core = { module = "org.apache.lucene:lucene-core", version.ref = "lucene" }
-lucene-queryparser = { module = "org.apache.lucene:lucene-queryparser", version.ref = "lucene" }
+#lucene-core = { module = "org.apache.lucene:lucene-core", version.ref = "lucene" }
+#lucene-queryparser = { module = "org.apache.lucene:lucene-queryparser", version.ref = "lucene" }
 
 # UI
 paging-compose-appcash = { module = "app.cash.paging:paging-common", version.ref = "paging-appcash" }
@@ -53,7 +53,7 @@ filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose
 
 [bundles]
 koin = ["koin-core", "koin-compose", "koin-compose-viewmodel"]
-lucene = ["lucene-core", "lucene-queryparser"]
+#lucene = ["lucene-core", "lucene-queryparser"]
 paging = ["paging-compose-appcash", "paging-compose-common-appcash"]
 fileKit = ["fileKit-core", "filekit-dialogs", "filekit-dialogs-compose"]
 

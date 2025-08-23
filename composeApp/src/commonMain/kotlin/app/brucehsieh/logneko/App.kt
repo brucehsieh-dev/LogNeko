@@ -1,37 +1,19 @@
 package app.brucehsieh.logneko
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.FileOpen
-import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,12 +24,11 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
 import app.brucehsieh.logneko.presentation.MainScreenViewModel
-import app.brucehsieh.logneko.presentation.composable.DesktopVerticalScroll
+import app.brucehsieh.logneko.presentation.composable.AppNavigationRail
+import app.brucehsieh.logneko.presentation.composable.FilterChipRow
 import app.brucehsieh.logneko.presentation.composable.FilterEditor
-import app.brucehsieh.logneko.presentation.composable.LineNumber
-import app.brucehsieh.logneko.presentation.composable.LineText
-import app.brucehsieh.logneko.presentation.composable.NumberTextLazyList
-import app.brucehsieh.logneko.presentation.composable.TextSearchBar
+import app.brucehsieh.logneko.presentation.composable.LogLinePane
+import app.brucehsieh.logneko.presentation.composable.SearchHeader
 import app.brucehsieh.logneko.presentation.theme.withFontFamily
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -61,133 +42,63 @@ import org.koin.compose.viewmodel.koinViewModel
 @Preview
 fun App(viewModel: MainScreenViewModel = koinViewModel()) {
 
-    MaterialTheme(
-        typography = MaterialTheme.typography.withFontFamily(FontFamily.Monospace)
-    ) {
+    MaterialTheme(typography = MaterialTheme.typography.withFontFamily(FontFamily.Monospace)) {
+        // Hoisted states
         var showBottomSheet by remember { mutableStateOf(false) }
         val sheetState = rememberModalBottomSheetState()
+        val listState = rememberLazyListState()
 
+        // Stable, memoized states
         val lineItems = viewModel.lineItems.collectAsLazyPagingItems()
         val uiState = viewModel.uiState.collectAsState().value
-        val currentPlatformFile = viewModel.currentPlatformFile.collectAsState().value
 
-        LaunchedEffect(uiState.textQueryMatches) {
-            if (uiState.textQueryMatches.isNotEmpty()) {
-                println("@@@@: query matches: ${uiState.textQueryMatches.size}")
-                println("@@@@: query matches: ${uiState.textQueryMatches.last()}")
+        // Memoize matches map to reduce downstream recompositions
+        val matchesByLine = remember(uiState) { uiState.matchesByLine }
+
+        LaunchedEffect(uiState.matchesByLine) {
+            if (uiState.matchesByLine.isNotEmpty()) {
+                println("@@@@: query matches: ${uiState.matchesByLine.size}")
             }
-        }
-
-        val matchesByLine = remember(uiState.textQueryMatches) {
-            // O(N) once per query change, O(1) lookup per row
-            uiState.textQueryMatches.associate { it.lineNumber to it.ranges }
         }
 
         Row {
-            NavigationRail {
-                NavigationRailItem(
-                    selected = false,
-                    onClick = viewModel::flipShowFilePicker,
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Outlined.FileOpen,
-                            contentDescription = "Open file"
-                        )
-                    },
-                    label = { Text("File") }
-                )
-                NavigationRailItem(
-                    selected = false,
-                    onClick = {
-                        showBottomSheet = !showBottomSheet
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Outlined.Tune,
-                            contentDescription = "Set filters"
-                        )
-                    },
-                    enabled = currentPlatformFile != null && !uiState.indexing,
-                    label = { Text("Filter") }
-                )
-            }
+            AppNavigationRail(
+                isFilterEnabled = uiState.hasFile,
+                onOpenFile = viewModel::openFilePicker,
+                onToggleFilterSheet = {
+                    showBottomSheet = !showBottomSheet
+                }
+            )
             Box(
                 modifier = Modifier
                     .safeContentPadding()
                     .fillMaxSize()
                     .padding(horizontal = 4.dp)
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        TextSearchBar(
-                            searchQuery = uiState.textQuery,
-                            onSearchQueryChange = viewModel::onTextQueryChange,
-                            onSearch = {},
-                        )
-                    }
-                    if (uiState.filterQuery.isNotEmpty()) {
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.CenterStart
-                        ) {
-                            FlowRow {
-                                InputChip(
-                                    selected = true,
-                                    onClick = viewModel::onFilterClear,
-                                    label = { Text("Filter On") },
-                                    trailingIcon = { Icon(Icons.Outlined.Close, contentDescription = "Close") }
-                                )
-                            }
-                        }
-                    }
-                    Box(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        val listState = rememberLazyListState()
-                        SelectionContainer {
-                            if (uiState.filteredLineItems.isNotEmpty()) {
-                                LazyColumn(state = listState) {
-                                    items(uiState.filteredLineItems, key = { it.number }) { lineItem ->
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-                                        val matchRanges by remember(lineItem.number, uiState.textQueryMatches) {
-                                            derivedStateOf {
-                                                if (uiState.textQueryMatches.isNotEmpty())
-                                                    matchesByLine[lineItem.number].orEmpty()
-                                                else
-                                                    emptyList()
-                                            }
-                                        }
+                    // Search header (text search bar)
+                    SearchHeader(
+                        searchQuery = uiState.textQuery,
+                        onQueryChange = viewModel::onTextQueryChange
+                    )
 
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.Start
-                                        ) {
-                                            LineNumber(lineItem = lineItem, modifier = Modifier.width(64.dp))
-                                            LineText(lineItem = lineItem, matchRanges = matchRanges)
-                                        }
-                                    }
-                                }
-                            } else {
-                                NumberTextLazyList(
-                                    lineItems = lineItems,
-                                    listState = listState,
-                                    matchesByLine = matchesByLine
-                                )
-                            }
-                        }
-                        DesktopVerticalScroll(
-                            lazyListState = listState,
-                            modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight()
-                        )
-                    }
+                    // Filter chip row (visible only when filter is active)
+                    FilterChipRow(
+                        filterQuery = uiState.filterQuery,
+                        onClear = viewModel::onFilterClear
+                    )
+
+                    // Main log line pane (filtered list or paged list)
+                    LogLinePane(
+                        filteredLineItems = uiState.filteredLineItems,
+                        pagingItems = lineItems,
+                        listState = listState,
+                        matchesByLine = matchesByLine
+                    )
                 }
 
-                if (currentPlatformFile != null && !uiState.indexing && showBottomSheet) {
+                if (uiState.hasFile && showBottomSheet) {
                     ModalBottomSheet(
                         onDismissRequest = { showBottomSheet = false },
                         sheetState = sheetState
