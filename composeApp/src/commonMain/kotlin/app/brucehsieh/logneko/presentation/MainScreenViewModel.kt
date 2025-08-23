@@ -6,6 +6,8 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import app.brucehsieh.logneko.core.util.Platform
 import app.brucehsieh.logneko.core.util.getPlatform
+import app.brucehsieh.logneko.data.CONTENT_URL
+import app.brucehsieh.logneko.data.JVM_FILE
 import app.brucehsieh.logneko.data.modal.LineItem
 import app.brucehsieh.logneko.data.modal.PagingDataMode
 import app.brucehsieh.logneko.data.paging.LineReader
@@ -35,6 +37,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
+import org.koin.core.qualifier.named
 import kotlin.time.measureTime
 
 @FlowPreview
@@ -61,10 +64,15 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
             .filterNotNull()
             .mapLatest { platformFile ->
                 val duration = measureTime {
-                    val reader = get<LineReader> { parametersOf(platformFile.absolutePath()) }
+
+                    val qualifier = when (getPlatform()) {
+                        Platform.ANDROID -> named(CONTENT_URL)
+                        Platform.DESKTOP -> named(JVM_FILE)
+                    }
+                    val lineReader = get<LineReader>(qualifier) { parametersOf(platformFile.absolutePath()) }
 
                     // TODO: Hook progress into UI if desired
-                    val all = reader.readAll { }
+                    val all = lineReader.readAll { }
 
                     fileLineRepository.fullLoaded(all)
                 }
@@ -127,19 +135,23 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
     ): Flow<PagingData<LineItem>> =
         when (getPlatform()) {
             Platform.DESKTOP -> {
-                val lineReader = get<LineReader> { parametersOf(platformFile.absolutePath()) }
+                val lineReader = get<LineReader>(named(JVM_FILE)) {
+                    parametersOf(platformFile.absolutePath())
+                }
                 when (pagingDataMode) {
                     PagingDataMode.STREAMING -> fileLineRepository.streamPager(lineReader, pageSize = 500)
                     PagingDataMode.IN_MEMORY -> fileLineRepository.memoryPager(lineReader, pageSize = 1000)
-                        .also { println("@@@@ IN MEMORY @@@@@") }
                 }
             }
 
             Platform.ANDROID -> {
-                fileLineRepository.getFileLinesPagedByContentUri(
-                    platformFile.absolutePath(),
-                    pageSize = 100
-                )
+                val lineReader = get<LineReader>(named(CONTENT_URL)) {
+                    parametersOf(platformFile.absolutePath())
+                }
+                when (pagingDataMode) {
+                    PagingDataMode.STREAMING -> fileLineRepository.streamPager(lineReader, pageSize = 200)
+                    PagingDataMode.IN_MEMORY -> fileLineRepository.memoryPager(lineReader, pageSize = 500)
+                }
             }
         }
 }
