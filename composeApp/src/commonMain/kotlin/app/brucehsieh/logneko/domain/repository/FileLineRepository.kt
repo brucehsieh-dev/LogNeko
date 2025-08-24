@@ -17,14 +17,5 @@ interface FileLineRepository {
 
     fun streamPager(lineReader: LineReader, pageSize: Int): Flow<PagingData<LineItem>>
     fun memoryPager(lineReader: LineReader, pageSize: Int): Flow<PagingData<LineItem>>
-
-    /**
-     * Retrieves a Flow of PagingData containing file lines.
-     *
-     * @param contentUriString The content URI of the file, Android specific.
-     * @param pageSize The number of lines per page. One page corresponds to one line of text.
-     */
-    fun getFileLinesPagedByContentUri(contentUriString: String, pageSize: Int): Flow<PagingData<LineItem>>
-
     fun fullLoaded(lineItems: List<LineItem>)
 }
