@@ -49,7 +49,7 @@ class FileLineRepositoryImpl : FileLineRepository, KoinComponent {
 
     override fun fullLoaded(lineItems: List<LineItem>) {
         _allLines.value = lineItems
-        _pagingDataMode.value = PagingDataMode.IN_MEMORY
+//        _pagingDataMode.value = PagingDataMode.IN_MEMORY
         get<InMemorySearcher>().load(lineItems)
     }
 }

@@ -24,7 +24,7 @@ import app.brucehsieh.logneko.presentation.modal.ItemType
  * - Cache highlight lookups with `derivedStateOf` to avoid recomputation.
  */
 @Composable
-fun NumberTextLazyList(
+fun PagingNumberTextLazyList(
     lineItems: LazyPagingItems<LineItem>,
     listState: LazyListState,
     modifier: Modifier = Modifier,
