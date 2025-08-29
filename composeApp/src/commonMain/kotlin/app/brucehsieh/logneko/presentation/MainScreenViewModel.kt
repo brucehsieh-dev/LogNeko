@@ -13,6 +13,7 @@ import app.brucehsieh.logneko.data.modal.PagingDataMode
 import app.brucehsieh.logneko.data.paging.LineReader
 import app.brucehsieh.logneko.domain.manager.TextSearchManager
 import app.brucehsieh.logneko.domain.repository.FileLineRepository
+import app.brucehsieh.logneko.presentation.modal.LineSource
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.absolutePath
@@ -75,8 +76,17 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
                     val all = lineReader.readAll { }
 
                     fileLineRepository.fullLoaded(all)
+                    _uiState.update { it.copy(lineSource = LineSource.FULL_LIST) }
                 }
                 println("@@@@: full load took ${duration.inWholeMilliseconds} ms")
+            }
+            .launchIn(viewModelScope)
+
+        fileLineRepository.allLines
+            .onEach { lineItems ->
+                if (lineItems.isNotEmpty()) {
+                    _uiState.update { it.copy(displayedLineItems = lineItems) }
+                }
             }
             .launchIn(viewModelScope)
 
@@ -111,14 +121,14 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
             val elapsed = measureTime {
                 _uiState.update { it.copy(filtering = true, filterQuery = filterQuery) }
                 val filtered = textSearchManager.filter(filterQuery)
-                _uiState.update { it.copy(filtering = false, filterQuery = filterQuery, filteredLineItems = filtered) }
+                _uiState.update { it.copy(filtering = false, filterQuery = filterQuery, displayedLineItems = filtered) }
             }
             println("@@@@: searching took ${elapsed.inWholeMilliseconds} ms")
         }
     }
 
     fun onFilterClear() {
-        _uiState.value = uiState.value.copy(filterQuery = "", filteredLineItems = emptyList())
+        _uiState.value = uiState.value.copy(filterQuery = "", displayedLineItems = fileLineRepository.allLines.value)
     }
 
     fun onTextQueryChange(textQuery: String) {

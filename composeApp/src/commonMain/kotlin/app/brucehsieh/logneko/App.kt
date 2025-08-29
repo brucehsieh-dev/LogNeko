@@ -91,7 +91,8 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
 
                     // Main log line pane (filtered list or paged list)
                     LogLinePane(
-                        filteredLineItems = uiState.filteredLineItems,
+                        lineSource = uiState.lineSource,
+                        displayedLineItems = uiState.displayedLineItems,
                         pagingItems = lineItems,
                         listState = listState,
                         matchesByLine = matchesByLine

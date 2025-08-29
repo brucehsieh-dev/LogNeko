@@ -19,7 +19,7 @@ import app.brucehsieh.logneko.presentation.modal.ItemType
 /**
  * Filtered, fully-realized list of numbered text lines.
  *
- * Use this when all lines are already in memory (e.g., after applying filters). Unlike [NumberTextLazyList], this
+ * Use this when all lines are already in memory (e.g., after applying filters). Unlike [PagingNumberTextLazyList], this
  * composable has no placeholders; every row uses a constant content type and a stable key.
  *
  * @param items         Lines to display. Each item must have a stable, unique [LineItem.number].
@@ -27,8 +27,8 @@ import app.brucehsieh.logneko.presentation.modal.ItemType
  * @param matchesByLine Map from line number to highlight ranges within that line.
  */
 @Composable
-fun FilteredNumberTextList(
-    filteredLineItems: List<LineItem>,
+fun FullNumberTextList(
+    displayedLineItems: List<LineItem>,
     listState: LazyListState,
     modifier: Modifier = Modifier,
     matchesByLine: Map<Int, List<IntRange>> = emptyMap()
@@ -38,7 +38,7 @@ fun FilteredNumberTextList(
         modifier = modifier.fillMaxSize()
     ) {
         items(
-            items = filteredLineItems,
+            items = displayedLineItems,
             key = { it.number },                        // stable identity
             contentType = { ItemType.NumberTextLine }   // constant type; no placeholders
         ) { lineItem ->

@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.paging.compose.LazyPagingItems
 import app.brucehsieh.logneko.data.modal.LineItem
+import app.brucehsieh.logneko.presentation.modal.LineSource
 
 /**
  * Displays either the filtered fixed list or the paged list with numbers & highlights.
@@ -22,7 +23,8 @@ import app.brucehsieh.logneko.data.modal.LineItem
  */
 @Composable
 fun LogLinePane(
-    filteredLineItems: List<LineItem>,
+    lineSource: LineSource,
+    displayedLineItems: List<LineItem>,
     pagingItems: LazyPagingItems<LineItem>,
     listState: LazyListState,
     matchesByLine: Map<Int, List<IntRange>>,
@@ -30,16 +32,16 @@ fun LogLinePane(
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         SelectionContainer {
-            if (filteredLineItems.isNotEmpty()) {
-                FilteredNumberTextList(
-                    filteredLineItems = filteredLineItems,
+            when (lineSource) {
+                LineSource.PAGING -> PagingNumberTextLazyList(
+                    lineItems = pagingItems,
                     listState = listState,
                     modifier = Modifier.fillMaxSize(),
                     matchesByLine = matchesByLine
                 )
-            } else {
-                NumberTextLazyList(
-                    lineItems = pagingItems,
+
+                LineSource.FULL_LIST -> FullNumberTextList(
+                    displayedLineItems = displayedLineItems,
                     listState = listState,
                     modifier = Modifier.fillMaxSize(),
                     matchesByLine = matchesByLine
