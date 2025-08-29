@@ -14,6 +14,7 @@ import app.brucehsieh.logneko.data.paging.LineReader
 import app.brucehsieh.logneko.domain.manager.TextSearchManager
 import app.brucehsieh.logneko.domain.repository.FileLineRepository
 import app.brucehsieh.logneko.presentation.modal.LineSource
+import app.brucehsieh.logneko.presentation.modal.SearchHit
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.absolutePath
@@ -99,8 +100,16 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
             }
             .onEach { matches ->
                 val matchesByLine = matches.associate { it.lineNumber to it.ranges }
+                val searchHits = computeSearchHits(matchesByLine = matchesByLine)
+                val activeMatchIndex = computeActiveIndex(searchHits, uiState.value.activeSearchHitIndex)
+
                 _uiState.update {
-                    it.copy(textQuerying = false, matchesByLine = matchesByLine)
+                    it.copy(
+                        textQuerying = false,
+                        matchesByLine = matchesByLine,
+                        searchHits = searchHits,
+                        activeSearchHitIndex = activeMatchIndex
+                    )
                 }
             }
             .launchIn(viewModelScope)
@@ -164,4 +173,40 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
                 }
             }
         }
+
+    fun nextMatch() = _uiState.update { s ->
+        if (s.searchHits.isEmpty()) s
+        else s.copy(activeSearchHitIndex = (s.activeSearchHitIndex + 1).mod(s.searchHits.size))
+    }
+
+    fun prevMatch() = _uiState.update { s ->
+        if (s.searchHits.isEmpty()) s
+        else s.copy(activeSearchHitIndex = (s.activeSearchHitIndex - 1).mod(s.searchHits.size))
+    }
+
+    /** Optional: jump to the first match on a specific line (e.g., from a gutter click). */
+    fun focusLine(lineNumber: Int) = _uiState.update { s ->
+        val idx = s.searchHits.indexOfFirst { it.lineNumber == lineNumber }
+        if (idx >= 0) s.copy(activeSearchHitIndex = idx) else s
+    }
+
+    private fun computeSearchHits(
+        matchesByLine: Map<Int, List<IntRange>>
+    ): List<SearchHit> {
+        if (matchesByLine.isEmpty()) return emptyList()
+
+        val searchHits = ArrayList<SearchHit>()
+        matchesByLine.iterator().forEach { (lineNumber, ranges) ->
+            ranges.forEachIndexed { idx, _ ->
+                searchHits += SearchHit(lineNumber = lineNumber, occurrenceIndex = idx)
+            }
+        }
+        return searchHits
+    }
+
+    private fun computeActiveIndex(searchHits: List<SearchHit>, currentActiveIndex: Int) = if (searchHits.isEmpty()) {
+        -1
+    } else {
+        currentActiveIndex.coerceIn(0, searchHits.lastIndex)
+    }
 }

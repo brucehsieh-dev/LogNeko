@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.paging.compose.LazyPagingItems
 import app.brucehsieh.logneko.data.modal.LineItem
 import app.brucehsieh.logneko.presentation.modal.LineSource
+import app.brucehsieh.logneko.presentation.modal.SearchHit
 
 /**
  * Displays either the filtered fixed list or the paged list with numbers & highlights.
@@ -28,6 +30,8 @@ fun LogLinePane(
     pagingItems: LazyPagingItems<LineItem>,
     listState: LazyListState,
     matchesByLine: Map<Int, List<IntRange>>,
+    searchHits: List<SearchHit>,
+    activeSearchHitIndex: Int,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -40,12 +44,23 @@ fun LogLinePane(
                     matchesByLine = matchesByLine
                 )
 
-                LineSource.FULL_LIST -> FullNumberTextList(
-                    displayedLineItems = displayedLineItems,
-                    listState = listState,
-                    modifier = Modifier.fillMaxSize(),
-                    matchesByLine = matchesByLine
-                )
+                LineSource.FULL_LIST -> {
+                    val activeSearchHit = searchHits.getOrNull(activeSearchHitIndex)
+                    LaunchedEffect(activeSearchHit) {
+                        val target = activeSearchHit?.lineNumber?.minus(1)
+                        if (target != null) {
+                            listState.scrollToItem(target)
+                        }
+                    }
+
+                    NonPagingNumberTextList(
+                        displayedLineItems = displayedLineItems,
+                        listState = listState,
+                        modifier = Modifier.fillMaxSize(),
+                        matchesByLine = matchesByLine,
+                        activeSearchHit = activeSearchHit
+                    )
+                }
             }
         }
 

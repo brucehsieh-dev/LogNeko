@@ -80,7 +80,9 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                     // Search header (text search bar)
                     SearchHeader(
                         searchQuery = uiState.textQuery,
-                        onQueryChange = viewModel::onTextQueryChange
+                        onQueryChange = viewModel::onTextQueryChange,
+                        onPrevious = viewModel::prevMatch,
+                        onNext = viewModel::nextMatch
                     )
 
                     // Filter chip row (visible only when filter is active)
@@ -95,7 +97,9 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                         displayedLineItems = uiState.displayedLineItems,
                         pagingItems = lineItems,
                         listState = listState,
-                        matchesByLine = matchesByLine
+                        matchesByLine = matchesByLine,
+                        searchHits = uiState.searchHits,
+                        activeSearchHitIndex = uiState.activeSearchHitIndex
                     )
                 }
 

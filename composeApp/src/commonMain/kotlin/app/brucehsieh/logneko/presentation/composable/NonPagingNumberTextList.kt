@@ -15,24 +15,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.brucehsieh.logneko.data.modal.LineItem
 import app.brucehsieh.logneko.presentation.modal.ItemType
+import app.brucehsieh.logneko.presentation.modal.SearchHit
 
 /**
- * Filtered, fully-realized list of numbered text lines.
+ * Displays a fully realized list of numbered text lines without paging.
  *
- * Use this when all lines are already in memory (e.g., after applying filters). Unlike [PagingNumberTextLazyList], this
- * composable has no placeholders; every row uses a constant content type and a stable key.
+ * Used when lines are already loaded in memory (either all lines or a filtered subset).
  *
- * @param items         Lines to display. Each item must have a stable, unique [LineItem.number].
- * @param listState     Scroll state shared with external scrollbars, if any.
- * @param matchesByLine Map from line number to highlight ranges within that line.
+ * @param displayedLineItems The in-memory list of [LineItem]s to render.
+ * @param listState The [LazyListState] controlling and observing scroll position.
+ * @param matchesByLine Map of line numbers to match ranges for highlighting search results.
+ * @param activeSearchHit The currently focused search hit (line number + occurrence index), or null if none.
+ * @param modifier [Modifier] for styling and layout of the surrounding [LazyColumn].
  */
 @Composable
-fun FullNumberTextList(
+fun NonPagingNumberTextList(
     displayedLineItems: List<LineItem>,
     listState: LazyListState,
-    modifier: Modifier = Modifier,
-    matchesByLine: Map<Int, List<IntRange>> = emptyMap()
+    matchesByLine: Map<Int, List<IntRange>>,
+    activeSearchHit: SearchHit?,
+    modifier: Modifier = Modifier
 ) {
+    val activeSearchHitLineNumber = activeSearchHit?.lineNumber
+    val activeSearchHitOccurrenceIndex = activeSearchHit?.occurrenceIndex
+
     LazyColumn(
         state = listState,
         modifier = modifier.fillMaxSize()
@@ -45,9 +51,17 @@ fun FullNumberTextList(
             val matchRanges by remember(lineItem.number, matchesByLine) {
                 derivedStateOf { matchesByLine[lineItem.number].orEmpty() }
             }
+
             Row(modifier = Modifier.fillMaxWidth()) {
                 LineNumber(lineItem = lineItem, modifier = Modifier.width(64.dp))
-                LineText(lineItem = lineItem, matchRanges = matchRanges)
+                LineText(
+                    lineItem = lineItem,
+                    matchRanges = matchRanges,
+                    // Only non-null for the active hit on this line
+                    activeOccurrenceIndex =
+                        if (activeSearchHitLineNumber != lineItem.number) null
+                        else activeSearchHitOccurrenceIndex
+                )
             }
         }
     }

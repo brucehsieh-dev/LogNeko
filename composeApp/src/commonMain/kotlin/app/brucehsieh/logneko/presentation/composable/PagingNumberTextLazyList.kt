@@ -61,7 +61,8 @@ fun PagingNumberTextLazyList(
                 )
                 LineText(
                     lineItem = lineItem,
-                    matchRanges = matchRanges
+                    matchRanges = matchRanges,
+                    activeOccurrenceIndex = null
                 )
             }
         }

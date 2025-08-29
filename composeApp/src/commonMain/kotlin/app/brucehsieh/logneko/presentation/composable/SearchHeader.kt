@@ -11,16 +11,21 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun SearchHeader(
     searchQuery: String,
-    onQueryChange: (String) -> Unit
+    onQueryChange: (String) -> Unit,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.CenterStart
     ) {
         TextSearchBar(
             searchQuery = searchQuery,
             onSearchQueryChange = onQueryChange,
-            onSearch = { /* handled in ViewModel */ }
+            onSearch = { /* handled in ViewModel */ },
+            onPrevious = onPrevious,
+            onNext = onNext
         )
     }
 }
@@ -31,7 +36,9 @@ fun SearchHeaderPreview() {
     MaterialTheme {
         SearchHeader(
             searchQuery = "Search Query",
-            onQueryChange = {}
+            onQueryChange = {},
+            onPrevious = {},
+            onNext = {}
         )
     }
 }

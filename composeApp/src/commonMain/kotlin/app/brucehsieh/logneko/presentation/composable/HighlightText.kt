@@ -25,7 +25,7 @@ fun HighlightText(
     text: String,
     modifier: Modifier = Modifier,
     intRanges: List<IntRange> = emptyList(),
-    activeIndex: Int? = null,
+    activeOccurrenceIndex: Int?,
     maxHighlightsPerLine: Int = Int.MAX_VALUE
 ) {
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
@@ -39,7 +39,7 @@ fun HighlightText(
             val start = intRange.first.coerceAtLeast(0)
             val end = (intRange.last + 1).coerceAtMost(text.length) // endExclusive
             val path = l.getPathForRange(start, end)
-            drawPath(path, if (i == activeIndex) Color.Green else Color.Gray)
+            drawPath(path, if (i == activeOccurrenceIndex) Color.Green else Color.Gray)
         }
     }
 
