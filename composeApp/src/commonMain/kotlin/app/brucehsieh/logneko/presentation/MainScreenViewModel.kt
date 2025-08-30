@@ -14,7 +14,7 @@ import app.brucehsieh.logneko.data.paging.LineReader
 import app.brucehsieh.logneko.domain.manager.TextSearchManager
 import app.brucehsieh.logneko.domain.repository.FileLineRepository
 import app.brucehsieh.logneko.presentation.modal.LineSource
-import app.brucehsieh.logneko.presentation.modal.SearchHit
+import app.brucehsieh.logneko.presentation.search.SearchNavigator
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.absolutePath
@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -48,6 +47,7 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
 
     private val fileLineRepository by inject<FileLineRepository>()
     private val textSearchManager by inject<TextSearchManager>()
+    private val searchNavigator by inject<SearchNavigator>()
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
@@ -77,17 +77,9 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
                     val all = lineReader.readAll { }
 
                     fileLineRepository.fullLoaded(all)
-                    _uiState.update { it.copy(lineSource = LineSource.FULL_LIST) }
+                    _uiState.update { it.copy(lineSource = LineSource.FULL_LIST, displayedLineItems = all) }
                 }
                 println("@@@@: full load took ${duration.inWholeMilliseconds} ms")
-            }
-            .launchIn(viewModelScope)
-
-        fileLineRepository.allLines
-            .onEach { lineItems ->
-                if (lineItems.isNotEmpty()) {
-                    _uiState.update { it.copy(displayedLineItems = lineItems) }
-                }
             }
             .launchIn(viewModelScope)
 
@@ -98,17 +90,21 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
                 _uiState.update { it.copy(textQuerying = true) }
                 textSearchManager.findOccurrences(query)
             }
-            .onEach { matches ->
+            .mapLatest { matches ->
                 val matchesByLine = matches.associate { it.lineNumber to it.ranges }
-                val searchHits = computeSearchHits(matchesByLine = matchesByLine)
-                val activeMatchIndex = computeActiveIndex(searchHits, uiState.value.activeSearchHitIndex)
-
+                matchesByLine
+            }
+            .mapLatest { matchesByLine ->
+                searchNavigator.update(matchesByLine)
+                Triple(matchesByLine, searchNavigator.searchHits, searchNavigator.activeSearchHitIndex)
+            }
+            .mapLatest { (matchesByLine, searchHits, activeSearchHitIndex) ->
                 _uiState.update {
                     it.copy(
                         textQuerying = false,
                         matchesByLine = matchesByLine,
                         searchHits = searchHits,
-                        activeSearchHitIndex = activeMatchIndex
+                        activeSearchHitIndex = activeSearchHitIndex
                     )
                 }
             }
@@ -145,6 +141,16 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
         _textQuery.value = textQuery
     }
 
+    fun nextMatch() = _uiState.update { s ->
+        searchNavigator.next()
+        s.copy(activeSearchHitIndex = searchNavigator.activeSearchHitIndex)
+    }
+
+    fun prevMatch() = _uiState.update { s ->
+        searchNavigator.prev()
+        s.copy(activeSearchHitIndex = searchNavigator.activeSearchHitIndex)
+    }
+
     /**
      * Get the appropriate pager.
      */
@@ -173,40 +179,4 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
                 }
             }
         }
-
-    fun nextMatch() = _uiState.update { s ->
-        if (s.searchHits.isEmpty()) s
-        else s.copy(activeSearchHitIndex = (s.activeSearchHitIndex + 1).mod(s.searchHits.size))
-    }
-
-    fun prevMatch() = _uiState.update { s ->
-        if (s.searchHits.isEmpty()) s
-        else s.copy(activeSearchHitIndex = (s.activeSearchHitIndex - 1).mod(s.searchHits.size))
-    }
-
-    /** Optional: jump to the first match on a specific line (e.g., from a gutter click). */
-    fun focusLine(lineNumber: Int) = _uiState.update { s ->
-        val idx = s.searchHits.indexOfFirst { it.lineNumber == lineNumber }
-        if (idx >= 0) s.copy(activeSearchHitIndex = idx) else s
-    }
-
-    private fun computeSearchHits(
-        matchesByLine: Map<Int, List<IntRange>>
-    ): List<SearchHit> {
-        if (matchesByLine.isEmpty()) return emptyList()
-
-        val searchHits = ArrayList<SearchHit>()
-        matchesByLine.iterator().forEach { (lineNumber, ranges) ->
-            ranges.forEachIndexed { idx, _ ->
-                searchHits += SearchHit(lineNumber = lineNumber, occurrenceIndex = idx)
-            }
-        }
-        return searchHits
-    }
-
-    private fun computeActiveIndex(searchHits: List<SearchHit>, currentActiveIndex: Int) = if (searchHits.isEmpty()) {
-        -1
-    } else {
-        currentActiveIndex.coerceIn(0, searchHits.lastIndex)
-    }
 }
