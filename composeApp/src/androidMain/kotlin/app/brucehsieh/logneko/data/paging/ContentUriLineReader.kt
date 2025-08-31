@@ -9,17 +9,19 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import kotlin.getValue
 
 /**
  * LineReader for Android content:// URIs (SAF).
  */
 class ContentUriLineReader(
-    contentUriString: String,
     private val ioDispatcher: CoroutineDispatcher = DefaultCoroutineDispatchers.io
 ) : LineReader, KoinComponent {
 
     private val context get() = get<Context>()
-    private val uri = contentUriString.toUri()
+    private val uri by lazy { filePath.toUri() }
+
+    override lateinit var filePath: String
 
     override suspend fun readLines(startLine: Int, count: Int): List<String> = withContext(ioDispatcher) {
         val out = ArrayList<String>(count.coerceAtMost(4096))

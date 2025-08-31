@@ -14,12 +14,11 @@ import app.brucehsieh.logneko.data.paging.LineReader
 import app.brucehsieh.logneko.domain.manager.TextSearchManager
 import app.brucehsieh.logneko.domain.repository.FileLineRepository
 import app.brucehsieh.logneko.domain.searching.InMemorySearcher
+import app.brucehsieh.logneko.domain.usecase.OpenFileUseCase
 import app.brucehsieh.logneko.presentation.modal.LineSource
 import app.brucehsieh.logneko.presentation.search.SearchNavigator
-import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.absolutePath
-import io.github.vinceglb.filekit.dialogs.openFilePicker
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -44,7 +43,9 @@ import kotlin.time.measureTime
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-class MainScreenViewModel : ViewModel(), KoinComponent {
+class MainScreenViewModel(
+    private val openFileUseCase: OpenFileUseCase
+) : ViewModel(), KoinComponent {
 
     private val fileLineRepository by inject<FileLineRepository>()
     private val textSearchManager by inject<TextSearchManager>()
@@ -57,32 +58,16 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
     private val _textQuery = MutableStateFlow("")
     private val _filterQuery = MutableStateFlow("")
 
-    val lineItems = combine(_currentPlatformFile, fileLineRepository.pagingDataMode, ::Pair)
-        .transformLatest { (platformFile, pagingDataMode) ->
-            platformFile ?: return@transformLatest
-            emitAll(getLineItemPagingData(platformFile, pagingDataMode))
+    val lineItems = combine(uiState, fileLineRepository.pagingDataMode, ::Pair)
+        .transformLatest { (uiState, pagingDataMode) ->
+            if (_currentPlatformFile.value == null || !uiState.hasFile) return@transformLatest
+            emitAll(getLineItemPagingData(_currentPlatformFile.value!!, pagingDataMode))
         }.cachedIn(viewModelScope)
 
     init {
         _currentPlatformFile
             .filterNotNull()
-            .mapLatest { platformFile ->
-                val duration = measureTime {
-
-                    val qualifier = when (getPlatform()) {
-                        Platform.ANDROID -> named(CONTENT_URL)
-                        Platform.DESKTOP -> named(JVM_FILE)
-                    }
-                    val lineReader = get<LineReader>(qualifier) { parametersOf(platformFile.absolutePath()) }
-
-                    // TODO: Hook progress into UI if desired
-                    val all = lineReader.readAll { }
-
-                    fileLineRepository.fullLoaded(all)
-                    _uiState.update { it.copy(lineSource = LineSource.FULL_LIST, displayedLineItems = all) }
-                }
-                println("@@@@: full load took ${duration.inWholeMilliseconds} ms")
-            }
+            .mapLatest(::readFile)
             .launchIn(viewModelScope)
 
         _textQuery
@@ -98,9 +83,8 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
 
     fun openFilePicker() {
         viewModelScope.launch {
-            val picked = FileKit.openFilePicker() ?: return@launch
+            val picked = openFileUseCase(Unit) ?: return@launch
             _currentPlatformFile.value = picked
-            _uiState.update { it.copy(hasFile = true) }
         }
     }
 
@@ -154,6 +138,29 @@ class MainScreenViewModel : ViewModel(), KoinComponent {
                 PagingDataMode.IN_MEMORY -> fileLineRepository.memoryPager(lineReader, pageSize = 500)
             }
         }
+    }
+
+    private suspend fun readFile(platformFile: PlatformFile) {
+        // Reset UiState and search navigator for new file
+        _uiState.update { UiState() }
+        searchNavigator.reset()
+
+        val duration = measureTime {
+
+            val qualifier = when (getPlatform()) {
+                Platform.ANDROID -> named(CONTENT_URL)
+                Platform.DESKTOP -> named(JVM_FILE)
+            }
+            val lineReader = get<LineReader>(qualifier)
+            lineReader.filePath = platformFile.absolutePath()
+
+            // TODO: Hook progress into UI if desired
+            val all = lineReader.readAll { }
+
+            fileLineRepository.fullLoaded(all)
+            _uiState.update { it.copy(hasFile = true, lineSource = LineSource.FULL_LIST, displayedLineItems = all) }
+        }
+        println("@@@@: full load took ${duration.inWholeMilliseconds} ms")
     }
 
     /**

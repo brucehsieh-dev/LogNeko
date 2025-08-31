@@ -9,9 +9,10 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 class JvmLineReader(
-    private val filePath: String,
     private val ioDispatcher: CoroutineDispatcher = DefaultCoroutineDispatchers.io
 ) : LineReader {
+
+    override lateinit var filePath: String
 
     override suspend fun readLines(startLine: Int, count: Int): List<String> = withContext(ioDispatcher) {
         RandomAccessFile(filePath, "r").use { raf ->

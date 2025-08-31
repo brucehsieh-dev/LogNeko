@@ -8,5 +8,5 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 actual fun platformModule() = module {
-    single(named(CONTENT_URL)) { (contentUriString: String) -> ContentUriLineReader(contentUriString) }.bind(LineReader::class)
+    single(named(CONTENT_URL)) { ContentUriLineReader() }.bind(LineReader::class)
 }

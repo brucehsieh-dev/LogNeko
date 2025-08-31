@@ -12,5 +12,5 @@ import org.koin.dsl.module
 
 val dataModule = module {
     singleOf(::FileLineRepositoryImpl).bind(FileLineRepository::class)
-    single(named(JVM_FILE)) { (filePath: String) -> JvmLineReader(filePath) }.bind(LineReader::class)
+    single(named(JVM_FILE)) { JvmLineReader() }.bind(LineReader::class)
 }
