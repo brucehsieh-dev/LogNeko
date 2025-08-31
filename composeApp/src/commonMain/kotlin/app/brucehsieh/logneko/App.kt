@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -77,10 +78,14 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
+                    Text("${uiState.activeSearchHitIndex.plus(1)} / ${uiState.searchHits.size}")
+
                     // Search header (text search bar)
                     SearchHeader(
                         searchQuery = uiState.textQuery,
-                        onQueryChange = viewModel::onTextQueryChange
+                        onQueryChange = viewModel::onTextQueryChange,
+                        onPrevious = viewModel::prevMatch,
+                        onNext = viewModel::nextMatch
                     )
 
                     // Filter chip row (visible only when filter is active)
@@ -95,7 +100,9 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                         displayedLineItems = uiState.displayedLineItems,
                         pagingItems = lineItems,
                         listState = listState,
-                        matchesByLine = matchesByLine
+                        matchesByLine = matchesByLine,
+                        searchHits = uiState.searchHits,
+                        activeSearchHitIndex = uiState.activeSearchHitIndex
                     )
                 }
 

@@ -10,6 +10,8 @@ import app.brucehsieh.logneko.domain.modal.Match
  */
 class InMemorySearcher(private var lineItems: List<LineItem> = emptyList()) {
 
+    // TODO: Add LRU cache for recently used text query in searching
+
     fun load(lineItems: List<LineItem>) {
         this.lineItems = lineItems
     }

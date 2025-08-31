@@ -21,6 +21,8 @@ fun TextSearchBar(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     SearchBar(
@@ -49,14 +51,10 @@ fun TextSearchBar(
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
                         Row {
-                            IconButton(
-                                onClick = { }
-                            ) {
+                            IconButton(onClick = onPrevious) {
                                 Icon(Icons.Default.ArrowUpward, contentDescription = "Previous")
                             }
-                            IconButton(
-                                onClick = { }
-                            ) {
+                            IconButton(onClick = onNext) {
                                 Icon(Icons.Default.ArrowDownward, contentDescription = "Next")
                             }
                         }

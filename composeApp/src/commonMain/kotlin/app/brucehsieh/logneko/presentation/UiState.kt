@@ -2,6 +2,7 @@ package app.brucehsieh.logneko.presentation
 
 import app.brucehsieh.logneko.data.modal.LineItem
 import app.brucehsieh.logneko.presentation.modal.LineSource
+import app.brucehsieh.logneko.presentation.modal.SearchHit
 
 data class UiState(
     val hasFile: Boolean = false,
@@ -11,5 +12,7 @@ data class UiState(
     val filterQuery: String = "",
     val textQuerying: Boolean = false,
     val textQuery: String = "",
-    val matchesByLine: Map<Int, List<IntRange>> = emptyMap()
+    val matchesByLine: Map<Int, List<IntRange>> = emptyMap(),
+    val searchHits: List<SearchHit> = emptyList(),
+    val activeSearchHitIndex: Int = -1
 )
