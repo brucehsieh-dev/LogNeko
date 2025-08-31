@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -76,6 +77,8 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                     .padding(horizontal = 4.dp)
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+                    Text("${uiState.activeSearchHitIndex.plus(1)} / ${uiState.searchHits.size}")
 
                     // Search header (text search bar)
                     SearchHeader(
