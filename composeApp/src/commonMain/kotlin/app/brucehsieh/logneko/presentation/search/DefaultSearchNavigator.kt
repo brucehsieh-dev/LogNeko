@@ -49,4 +49,9 @@ class DefaultSearchNavigator(
             activeSearchHitIndex = idx; true
         } else false
     }
+
+    override fun reset() {
+        searchHits = emptyList()
+        activeSearchHitIndex = -1
+    }
 }

@@ -38,4 +38,9 @@ interface SearchNavigator {
      * @return true if a hit was found and selected, false otherwise.
      */
     fun focusLine(lineNumber: Int): Boolean
+
+    /**
+     * Reset the navigator.
+     */
+    fun reset()
 }
