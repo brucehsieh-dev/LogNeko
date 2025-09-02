@@ -1,5 +1,7 @@
 package app.brucehsieh.logneko.presentation
 
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -7,6 +9,10 @@ import androidx.paging.cachedIn
 import app.brucehsieh.logneko.core.util.Platform
 import app.brucehsieh.logneko.core.util.getPlatform
 import app.brucehsieh.logneko.data.CONTENT_URL
+import app.brucehsieh.logneko.data.DEFAULT_FONT_MAX_SIZE
+import app.brucehsieh.logneko.data.DEFAULT_FONT_MIN_SIZE
+import app.brucehsieh.logneko.data.DEFAULT_FONT_SIZE
+import app.brucehsieh.logneko.data.DEFAULT_FONT_STEP_SIZE
 import app.brucehsieh.logneko.data.JVM_FILE
 import app.brucehsieh.logneko.data.modal.LineItem
 import app.brucehsieh.logneko.data.modal.PagingDataMode
@@ -100,6 +106,28 @@ class MainScreenViewModel(
     fun onTextQueryChange(textQuery: String) {
         _uiState.update { it.copy(textQuery = textQuery) }
         _textQuery.value = textQuery
+    }
+
+    fun onFontSizeChange(fontSizeSp: TextUnit) {
+        _uiState.update { it.copy(fontSizeSp = fontSizeSp) }
+    }
+
+    fun onZoomIn() {
+        _uiState.update {
+            it.copy(
+                fontSizeSp = (it.fontSizeSp.value + DEFAULT_FONT_STEP_SIZE).coerceAtMost(DEFAULT_FONT_MAX_SIZE).sp
+            )
+        }
+    }
+
+    fun onZoomOut() {
+        _uiState.update {
+            it.copy(fontSizeSp = (it.fontSizeSp.value - DEFAULT_FONT_STEP_SIZE).coerceAtLeast(DEFAULT_FONT_MIN_SIZE).sp)
+        }
+    }
+
+    fun onZoomReset() {
+        _uiState.update { it.copy(fontSizeSp = DEFAULT_FONT_SIZE.sp) }
     }
 
     fun nextMatch() = _uiState.update { s ->

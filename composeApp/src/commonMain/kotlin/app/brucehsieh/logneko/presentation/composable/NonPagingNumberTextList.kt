@@ -12,6 +12,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import app.brucehsieh.logneko.data.modal.LineItem
 import app.brucehsieh.logneko.presentation.modal.ItemType
@@ -34,6 +35,7 @@ fun NonPagingNumberTextList(
     listState: LazyListState,
     matchesByLine: Map<Int, List<IntRange>>,
     activeSearchHit: SearchHit?,
+    fontSize: TextUnit,
     modifier: Modifier = Modifier
 ) {
     val activeSearchHitLineNumber = activeSearchHit?.lineNumber
@@ -53,14 +55,15 @@ fun NonPagingNumberTextList(
             }
 
             Row(modifier = Modifier.fillMaxWidth()) {
-                LineNumber(lineItem = lineItem, modifier = Modifier.width(64.dp))
+                LineNumber(lineItem = lineItem, modifier = Modifier.width(64.dp), fontSize = fontSize)
                 LineText(
                     lineItem = lineItem,
                     matchRanges = matchRanges,
                     // Only non-null for the active hit on this line
                     activeOccurrenceIndex =
                         if (activeSearchHitLineNumber != lineItem.number) null
-                        else activeSearchHitOccurrenceIndex
+                        else activeSearchHitOccurrenceIndex,
+                    fontSize = fontSize
                 )
             }
         }

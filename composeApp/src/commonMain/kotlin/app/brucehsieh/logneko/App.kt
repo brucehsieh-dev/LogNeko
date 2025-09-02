@@ -30,6 +30,7 @@ import app.brucehsieh.logneko.presentation.composable.FilterChipRow
 import app.brucehsieh.logneko.presentation.composable.FilterEditor
 import app.brucehsieh.logneko.presentation.composable.LogLinePane
 import app.brucehsieh.logneko.presentation.composable.SearchHeader
+import app.brucehsieh.logneko.presentation.composable.ZoomableSurface
 import app.brucehsieh.logneko.presentation.theme.withFontFamily
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -76,34 +77,42 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                     .fillMaxSize()
                     .padding(horizontal = 4.dp)
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                ZoomableSurface(
+                    enableWheelZoom = true,
+                    onZoomIn = viewModel::onZoomIn,
+                    onZoomOut = viewModel::onZoomOut,
+                    onZoomReset = viewModel::onZoomReset,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-                    Text("${uiState.activeSearchHitIndex.plus(1)} / ${uiState.searchHits.size}")
+                        Text("${uiState.activeSearchHitIndex.plus(1)} / ${uiState.searchHits.size}")
 
-                    // Search header (text search bar)
-                    SearchHeader(
-                        searchQuery = uiState.textQuery,
-                        onQueryChange = viewModel::onTextQueryChange,
-                        onPrevious = viewModel::prevMatch,
-                        onNext = viewModel::nextMatch
-                    )
+                        // Search header (text search bar)
+                        SearchHeader(
+                            searchQuery = uiState.textQuery,
+                            onQueryChange = viewModel::onTextQueryChange,
+                            onPrevious = viewModel::prevMatch,
+                            onNext = viewModel::nextMatch
+                        )
 
-                    // Filter chip row (visible only when filter is active)
-                    FilterChipRow(
-                        filterQuery = uiState.filterQuery,
-                        onClear = viewModel::onFilterClear
-                    )
+                        // Filter chip row (visible only when filter is active)
+                        FilterChipRow(
+                            filterQuery = uiState.filterQuery,
+                            onClear = viewModel::onFilterClear
+                        )
 
-                    // Main log line pane (filtered list or paged list)
-                    LogLinePane(
-                        lineSource = uiState.lineSource,
-                        displayedLineItems = uiState.displayedLineItems,
-                        pagingItems = lineItems,
-                        listState = listState,
-                        matchesByLine = matchesByLine,
-                        searchHits = uiState.searchHits,
-                        activeSearchHitIndex = uiState.activeSearchHitIndex
-                    )
+                        // Main log line pane (filtered list or paged list)
+                        LogLinePane(
+                            lineSource = uiState.lineSource,
+                            displayedLineItems = uiState.displayedLineItems,
+                            pagingItems = lineItems,
+                            listState = listState,
+                            matchesByLine = matchesByLine,
+                            searchHits = uiState.searchHits,
+                            activeSearchHitIndex = uiState.activeSearchHitIndex,
+                            fontSize = uiState.fontSizeSp
+                        )
+                    }
                 }
 
                 if (uiState.hasFile && showBottomSheet) {
