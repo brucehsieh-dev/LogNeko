@@ -38,6 +38,7 @@ kotlin {
             // Util
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.bundles.koin)
+            implementation(libs.kermit)
 
             // Presentation
             implementation(compose.materialIconsExtended)

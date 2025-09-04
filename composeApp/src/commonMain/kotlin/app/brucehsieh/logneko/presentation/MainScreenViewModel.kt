@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import app.brucehsieh.logneko.core.logging.logD
 import app.brucehsieh.logneko.core.util.Platform
 import app.brucehsieh.logneko.core.util.getPlatform
 import app.brucehsieh.logneko.data.CONTENT_URL
@@ -21,18 +22,7 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.absolutePath
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.transformLatest
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -160,7 +150,7 @@ class MainScreenViewModel(
             fileLineRepository.fullLoaded(all)
             _uiState.update { it.copy(hasFile = true, lineSource = LineSource.FULL_LIST, displayedLineItems = all) }
         }
-        println("@@@@: full load took ${duration.inWholeMilliseconds} ms")
+        logD("full load took ${duration.inWholeMilliseconds} ms")
     }
 
     /**
@@ -170,6 +160,7 @@ class MainScreenViewModel(
         _uiState.update { it.copy(textQuerying = true) }
         val matches = textSearchManager.findOccurrences(textQuery)
         val matchesByLine = matches.associate { it.lineNumber to it.ranges }
+        logD("query matches: ${matchesByLine.size}")
         searchNavigator.update(matchesByLine)
         _uiState.update {
             it.copy(
