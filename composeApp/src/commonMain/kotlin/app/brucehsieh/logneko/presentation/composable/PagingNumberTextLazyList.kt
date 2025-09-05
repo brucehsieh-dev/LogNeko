@@ -10,6 +10,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import app.brucehsieh.logneko.data.modal.LineItem
@@ -28,7 +29,8 @@ fun PagingNumberTextLazyList(
     lineItems: LazyPagingItems<LineItem>,
     listState: LazyListState,
     modifier: Modifier = Modifier,
-    matchesByLine: Map<Int, List<IntRange>> = emptyMap()
+    matchesByLine: Map<Int, List<IntRange>> = emptyMap(),
+    fontSize: TextUnit
 ) {
     LazyColumn(
         state = listState,
@@ -57,12 +59,16 @@ fun PagingNumberTextLazyList(
             ) {
                 LineNumber(
                     lineItem = lineItem,
-                    modifier = Modifier.width(64.dp)
+                    modifier = Modifier.width(64.dp),
+                    fontSize = fontSize,
+                    lineHeight = fontSize * 1.2f
                 )
                 LineText(
                     lineItem = lineItem,
                     matchRanges = matchRanges,
-                    activeOccurrenceIndex = null
+                    activeOccurrenceIndex = null,
+                    fontSize = fontSize,
+                    lineHeight = fontSize * 1.2f
                 )
             }
         }

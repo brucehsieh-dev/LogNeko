@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.TextUnit
 
 /**
  * Displays [text] with highlighted segments.
@@ -26,7 +27,9 @@ fun HighlightText(
     modifier: Modifier = Modifier,
     intRanges: List<IntRange> = emptyList(),
     activeOccurrenceIndex: Int?,
-    maxHighlightsPerLine: Int = Int.MAX_VALUE
+    maxHighlightsPerLine: Int = Int.MAX_VALUE,
+    fontSize: TextUnit,
+    lineHeight: TextUnit
 ) {
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
 
@@ -46,6 +49,8 @@ fun HighlightText(
     Text(
         text = text,
         onTextLayout = { layout = it },
-        modifier = drawModifier
+        modifier = drawModifier,
+        fontSize = fontSize,
+        lineHeight = lineHeight
     )
 }

@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.TextUnit
 import androidx.paging.compose.LazyPagingItems
 import app.brucehsieh.logneko.data.modal.LineItem
 import app.brucehsieh.logneko.presentation.modal.LineSource
@@ -46,6 +47,7 @@ fun LogLinePane(
     matchesByLine: Map<Int, List<IntRange>>,
     searchHits: List<SearchHit>,
     activeSearchHitIndex: Int,
+    fontSize: TextUnit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -55,7 +57,8 @@ fun LogLinePane(
                     lineItems = pagingItems,
                     listState = listState,
                     modifier = Modifier.fillMaxSize(),
-                    matchesByLine = matchesByLine
+                    matchesByLine = matchesByLine,
+                    fontSize = fontSize
                 )
 
                 LineSource.FULL_LIST -> {
@@ -84,7 +87,8 @@ fun LogLinePane(
                         listState = listState,
                         modifier = Modifier.fillMaxSize(),
                         matchesByLine = matchesByLine,
-                        activeSearchHit = activeSearchHit
+                        activeSearchHit = activeSearchHit,
+                        fontSize = fontSize
                     )
                 }
             }

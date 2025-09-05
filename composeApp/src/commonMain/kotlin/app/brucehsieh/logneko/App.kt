@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.paging.compose.collectAsLazyPagingItems
 import app.brucehsieh.logneko.presentation.MainScreenViewModel
 import app.brucehsieh.logneko.presentation.composable.*
@@ -51,35 +52,49 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                     .fillMaxSize()
                     .padding(horizontal = 4.dp)
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                ZoomableSurface(
+                    enableWheelZoom = true,
+                    onZoomIn = viewModel::onZoomIn,
+                    onZoomOut = viewModel::onZoomOut,
+                    onZoomReset = viewModel::onZoomReset,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-                    Text("${uiState.activeSearchHitIndex.plus(1)} / ${uiState.searchHits.size}")
+                        Text("${uiState.activeSearchHitIndex.plus(1)} / ${uiState.searchHits.size}")
 
-                    // Search header (text search bar)
-                    SearchHeader(
-                        searchQuery = uiState.textQuery,
-                        onQueryChange = viewModel::onTextQueryChange,
-                        onPrevious = viewModel::prevMatch,
-                        onNext = viewModel::nextMatch
-                    )
+                        // Search header (text search bar)
+                        SearchHeader(
+                            searchQuery = uiState.textQuery,
+                            onQueryChange = viewModel::onTextQueryChange,
+                            onPrevious = viewModel::prevMatch,
+                            onNext = viewModel::nextMatch
+                        )
 
-                    // Filter chip row (visible only when filter is active)
-                    FilterChipRow(
-                        filterQuery = uiState.filterQuery,
-                        onClear = viewModel::onFilterClear
-                    )
+                        // Filter chip row (visible only when filter is active)
+                        FilterChipRow(
+                            filterQuery = uiState.filterQuery,
+                            onClear = viewModel::onFilterClear
+                        )
 
-                    // Main log line pane (filtered list or paged list)
-                    LogLinePane(
-                        lineSource = uiState.lineSource,
-                        displayedLineItems = uiState.displayedLineItems,
-                        pagingItems = lineItems,
-                        listState = listState,
-                        matchesByLine = matchesByLine,
-                        searchHits = uiState.searchHits,
-                        activeSearchHitIndex = uiState.activeSearchHitIndex
-                    )
+                        // Main log line pane (filtered list or paged list)
+                        LogLinePane(
+                            lineSource = uiState.lineSource,
+                            displayedLineItems = uiState.displayedLineItems,
+                            pagingItems = lineItems,
+                            listState = listState,
+                            matchesByLine = matchesByLine,
+                            searchHits = uiState.searchHits,
+                            activeSearchHitIndex = uiState.activeSearchHitIndex,
+                            fontSize = uiState.fontSizeSp
+                        )
+                    }
                 }
+
+                EdgeFontSizeAdjuster(
+                    value = uiState.fontSizeSp.value,
+                    onChange = { viewModel.onFontSizeChange(it.sp) },
+                    onChangeFinished = { /* persist via DataStore or use case, if you want */ }
+                )
 
                 if (uiState.hasFile && showBottomSheet) {
                     ModalBottomSheet(
