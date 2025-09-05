@@ -4,19 +4,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.isCtrlPressed
-import androidx.compose.ui.input.key.isMetaPressed
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerEvent
-import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isCtrlPressed
 import androidx.compose.ui.input.pointer.isMetaPressed
-import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.input.pointer.pointerInput
 import app.brucehsieh.logneko.core.util.OperatingSystem
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -55,16 +47,32 @@ fun ZoomableSurface(
                     else -> false
                 }
             }
-            .onPointerEvent(PointerEventType.Scroll) { event ->
-                if (!enableWheelZoom || !OperatingSystem.isDesktop) return@onPointerEvent
-                if (!pointerZoomModifierPressed(event)) return@onPointerEvent
+            .pointerInput(enableWheelZoom) {
+                if (!enableWheelZoom || !OperatingSystem.isDesktop) return@pointerInput
 
-                val deltaY = event.changes.firstOrNull()?.scrollDelta?.y ?: 0f
-                if (deltaY == 0f) return@onPointerEvent
-                if (deltaY > 0) onZoomIn() else onZoomOut()
+                awaitPointerEventScope {
+                    while (true) {
+                        val pointerEvent = awaitPointerEvent()
+                        if (!pointerZoomModifierPressed(pointerEvent)) continue
 
-                event.changes.forEach { it.consume() }
+                        val deltaY = pointerEvent.changes.firstOrNull()?.scrollDelta?.y ?: 0f
+                        if (deltaY == 0f) continue
+
+                        if (deltaY > 0) onZoomIn() else onZoomOut()
+                        pointerEvent.changes.forEach { it.consume() }
+                    }
+                }
             }
+//            .onPointerEvent(PointerEventType.Scroll) { event ->
+//                if (!enableWheelZoom || !OperatingSystem.isDesktop) return@onPointerEvent
+//                if (!pointerZoomModifierPressed(event)) return@onPointerEvent
+//
+//                val deltaY = event.changes.firstOrNull()?.scrollDelta?.y ?: 0f
+//                if (deltaY == 0f) return@onPointerEvent
+//                if (deltaY > 0) onZoomIn() else onZoomOut()
+//
+//                event.changes.forEach { it.consume() }
+//            }
     ) {
         content()
     }
