@@ -1,35 +1,16 @@
 package app.brucehsieh.logneko
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
 import app.brucehsieh.logneko.presentation.MainScreenViewModel
-import app.brucehsieh.logneko.presentation.composable.AppNavigationRail
-import app.brucehsieh.logneko.presentation.composable.FilterChipRow
-import app.brucehsieh.logneko.presentation.composable.FilterEditor
-import app.brucehsieh.logneko.presentation.composable.LogLinePane
-import app.brucehsieh.logneko.presentation.composable.SearchHeader
+import app.brucehsieh.logneko.presentation.composable.*
 import app.brucehsieh.logneko.presentation.theme.withFontFamily
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -55,12 +36,6 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
 
         // Memoize matches map to reduce downstream recompositions
         val matchesByLine = remember(uiState) { uiState.matchesByLine }
-
-        LaunchedEffect(uiState.matchesByLine) {
-            if (uiState.matchesByLine.isNotEmpty()) {
-                println("@@@@: query matches: ${uiState.matchesByLine.size}")
-            }
-        }
 
         Row {
             AppNavigationRail(

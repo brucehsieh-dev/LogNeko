@@ -17,6 +17,7 @@ kotlinx-coroutines = "1.10.2"
 filekit = "0.10.0"
 koin-bom = "4.1.0"
 paging-appcash = "3.3.0-alpha02-0.5.1"
+kermit = "2.0.8"
 #lucene = "10.2.2"
 
 [libraries]
@@ -47,6 +48,7 @@ paging-compose-appcash = { module = "app.cash.paging:paging-common", version.ref
 paging-compose-common-appcash = { module = "app.cash.paging:paging-compose-common", version.ref = "paging-appcash" }
 
 # UTIL
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 fileKit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
 filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekit" }
 filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
