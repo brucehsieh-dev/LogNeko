@@ -9,13 +9,14 @@ import androidx.compose.ui.unit.TextUnit
 import app.brucehsieh.logneko.data.modal.LineItem
 
 @Composable
-fun LineNumber(lineItem: LineItem, modifier: Modifier = Modifier, fontSize: TextUnit) {
+fun LineNumber(lineItem: LineItem, modifier: Modifier = Modifier, fontSize: TextUnit, lineHeight: TextUnit) {
     DisableSelection {
         Text(
             text = lineItem.number.toString(),
             modifier = modifier,
             color = Color.Gray,
-            fontSize = fontSize
+            fontSize = fontSize,
+            lineHeight = lineHeight
         )
     }
 }

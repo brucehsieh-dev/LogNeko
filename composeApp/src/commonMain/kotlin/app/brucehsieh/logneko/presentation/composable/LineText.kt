@@ -12,7 +12,8 @@ fun LineText(
     modifier: Modifier = Modifier,
     matchRanges: List<IntRange>,
     activeOccurrenceIndex: Int?,
-    fontSize: TextUnit
+    fontSize: TextUnit,
+    lineHeight: TextUnit
 ) {
     if (matchRanges.isNotEmpty()) {
         HighlightText(
@@ -20,8 +21,9 @@ fun LineText(
             modifier = modifier,
             intRanges = matchRanges,
             activeOccurrenceIndex = activeOccurrenceIndex,
-            fontSize = fontSize
+            fontSize = fontSize,
+            lineHeight = lineHeight
         )
     } else
-        Text(text = lineItem.text, modifier = modifier, fontSize = fontSize)
+        Text(text = lineItem.text, modifier = modifier, fontSize = fontSize, lineHeight = lineHeight)
 }

@@ -60,13 +60,15 @@ fun PagingNumberTextLazyList(
                 LineNumber(
                     lineItem = lineItem,
                     modifier = Modifier.width(64.dp),
-                    fontSize = fontSize
+                    fontSize = fontSize,
+                    lineHeight = fontSize * 1.2f
                 )
                 LineText(
                     lineItem = lineItem,
                     matchRanges = matchRanges,
                     activeOccurrenceIndex = null,
-                    fontSize = fontSize
+                    fontSize = fontSize,
+                    lineHeight = fontSize * 1.2f
                 )
             }
         }

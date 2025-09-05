@@ -55,7 +55,12 @@ fun NonPagingNumberTextList(
             }
 
             Row(modifier = Modifier.fillMaxWidth()) {
-                LineNumber(lineItem = lineItem, modifier = Modifier.width(64.dp), fontSize = fontSize)
+                LineNumber(
+                    lineItem = lineItem,
+                    modifier = Modifier.width(64.dp),
+                    fontSize = fontSize,
+                    lineHeight = fontSize * 1.2f
+                )
                 LineText(
                     lineItem = lineItem,
                     matchRanges = matchRanges,
@@ -63,7 +68,8 @@ fun NonPagingNumberTextList(
                     activeOccurrenceIndex =
                         if (activeSearchHitLineNumber != lineItem.number) null
                         else activeSearchHitOccurrenceIndex,
-                    fontSize = fontSize
+                    fontSize = fontSize,
+                    lineHeight = fontSize * 1.2f
                 )
             }
         }

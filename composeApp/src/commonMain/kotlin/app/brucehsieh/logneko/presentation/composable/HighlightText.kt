@@ -28,7 +28,8 @@ fun HighlightText(
     intRanges: List<IntRange> = emptyList(),
     activeOccurrenceIndex: Int?,
     maxHighlightsPerLine: Int = Int.MAX_VALUE,
-    fontSize: TextUnit
+    fontSize: TextUnit,
+    lineHeight: TextUnit
 ) {
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
 
@@ -49,6 +50,7 @@ fun HighlightText(
         text = text,
         onTextLayout = { layout = it },
         modifier = drawModifier,
-        fontSize = fontSize
+        fontSize = fontSize,
+        lineHeight = lineHeight
     )
 }
