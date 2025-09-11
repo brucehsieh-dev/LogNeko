@@ -44,6 +44,7 @@ kotlin {
             implementation(compose.materialIconsExtended)
             implementation(libs.bundles.paging)
             implementation(libs.bundles.fileKit)
+            implementation(libs.m3.adaptive)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
