@@ -18,6 +18,7 @@ filekit = "0.10.0"
 koin-bom = "4.1.0"
 paging-appcash = "3.3.0-alpha02-0.5.1"
 kermit = "2.0.8"
+m3-adaptive = "1.2.0-alpha05"
 #lucene = "10.2.2"
 
 [libraries]
@@ -46,6 +47,7 @@ koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel" }
 # UI
 paging-compose-appcash = { module = "app.cash.paging:paging-common", version.ref = "paging-appcash" }
 paging-compose-common-appcash = { module = "app.cash.paging:paging-compose-common", version.ref = "paging-appcash" }
+m3-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "m3-adaptive" }
 
 # UTIL
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
