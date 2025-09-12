@@ -19,6 +19,7 @@ koin-bom = "4.1.0"
 paging-appcash = "3.3.0-alpha02-0.5.1"
 kermit = "2.0.8"
 m3-adaptive = "1.2.0-alpha05"
+junit5 = "5.13.4"
 #lucene = "10.2.2"
 
 [libraries]
@@ -55,11 +56,17 @@ fileKit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "file
 filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekit" }
 filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
 
+# TEST
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit5" }
+
 [bundles]
 koin = ["koin-core", "koin-compose", "koin-compose-viewmodel"]
 #lucene = ["lucene-core", "lucene-queryparser"]
 paging = ["paging-compose-appcash", "paging-compose-common-appcash"]
 fileKit = ["fileKit-core", "filekit-dialogs", "filekit-dialogs-compose"]
+junit5 = ["junit-jupiter-api", "junit-jupiter-params"]
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

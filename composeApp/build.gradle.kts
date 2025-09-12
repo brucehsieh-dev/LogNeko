@@ -54,6 +54,10 @@ kotlin {
             implementation(libs.kotlinx.coroutinesSwing)
 //            implementation(libs.bundles.lucene)
         }
+        jvmTest.dependencies {
+            runtimeOnly(libs.junit.jupiter.engine)
+            implementation(libs.bundles.junit5)
+        }
     }
 }
 
@@ -99,3 +103,6 @@ compose.desktop {
         }
     }
 }
+
+
+tasks.withType<Test> { useJUnitPlatform() }
