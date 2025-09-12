@@ -11,10 +11,10 @@ class FilterEvaluatorTest {
     @Test
     fun `empty text term should return false`() {
         // Arrange
-        val filterExpr = FilterExpr.Term("")
+        val filterExpression = FilterExpression.Term("")
 
         // Act
-        val result = FilterEvaluator.matches(lineItem1, filterExpr)
+        val result = FilterEvaluator.matches(lineItem1, filterExpression)
 
         // Assert
         Assertions.assertFalse(result)
@@ -38,11 +38,11 @@ class FilterEvaluatorTest {
         lineItemIndex: Int
     ) {
         // Arrange
-        val filterExpr = FilterExpr.Term(text, caseSensitive, wholeWord, regex, negated)
+        val filterExpression = FilterExpression.Term(text, caseSensitive, wholeWord, regex, negated)
         val lineItem = getLineItem(lineItemIndex)
 
         // Act
-        val result = FilterEvaluator.matches(lineItem, filterExpr)
+        val result = FilterEvaluator.matches(lineItem, filterExpression)
 
         // Assert
         Assertions.assertTrue(result)
@@ -66,11 +66,11 @@ class FilterEvaluatorTest {
         lineItemIndex: Int
     ) {
         // Arrange
-        val filterExpr = FilterExpr.Term(text, caseSensitive, wholeWord, regex, negated)
+        val filterExpression = FilterExpression.Term(text, caseSensitive, wholeWord, regex, negated)
         val lineItem = getLineItem(lineItemIndex)
 
         // Act
-        val result = FilterEvaluator.matches(lineItem, filterExpr)
+        val result = FilterEvaluator.matches(lineItem, filterExpression)
 
         // Assert
         Assertions.assertFalse(result)
@@ -94,11 +94,11 @@ class FilterEvaluatorTest {
         lineItemIndex: Int
     ) {
         // Arrange
-        val filterExpr = FilterExpr.Term(text, caseSensitive, wholeWord, regex, negated)
+        val filterExpression = FilterExpression.Term(text, caseSensitive, wholeWord, regex, negated)
         val lineItem = getLineItem(lineItemIndex)
 
         // Act
-        val result = FilterEvaluator.matches(lineItem, filterExpr)
+        val result = FilterEvaluator.matches(lineItem, filterExpression)
 
         // Assert
         Assertions.assertTrue(result)
@@ -122,11 +122,11 @@ class FilterEvaluatorTest {
         lineItemIndex: Int
     ) {
         // Arrange
-        val filterExpr = FilterExpr.Term(text, caseSensitive, wholeWord, regex, negated)
+        val filterExpression = FilterExpression.Term(text, caseSensitive, wholeWord, regex, negated)
         val lineItem = getLineItem(lineItemIndex)
 
         // Act
-        val result = FilterEvaluator.matches(lineItem, filterExpr)
+        val result = FilterEvaluator.matches(lineItem, filterExpression)
 
         // Assert
         Assertions.assertTrue(result)
@@ -150,11 +150,11 @@ class FilterEvaluatorTest {
         lineItemIndex: Int
     ) {
         // Arrange
-        val filterExpr = FilterExpr.Term(text, caseSensitive, wholeWord, regex, negated)
+        val filterExpression = FilterExpression.Term(text, caseSensitive, wholeWord, regex, negated)
         val lineItem = getLineItem(lineItemIndex)
 
         // Act
-        val result = FilterEvaluator.matches(lineItem, filterExpr)
+        val result = FilterEvaluator.matches(lineItem, filterExpression)
 
         // Assert
         Assertions.assertFalse(result)
@@ -178,11 +178,11 @@ class FilterEvaluatorTest {
         lineItemIndex: Int
     ) {
         // Arrange
-        val filterExpr = FilterExpr.Term(text, caseSensitive, wholeWord, regex, negated)
+        val filterExpression = FilterExpression.Term(text, caseSensitive, wholeWord, regex, negated)
         val lineItem = getLineItem(lineItemIndex)
 
         // Act
-        val result = FilterEvaluator.matches(lineItem, filterExpr)
+        val result = FilterEvaluator.matches(lineItem, filterExpression)
 
         // Assert
         Assertions.assertTrue(result)
@@ -206,11 +206,11 @@ class FilterEvaluatorTest {
         lineItemIndex: Int
     ) {
         // Arrange
-        val filterExpr = FilterExpr.Term(text, caseSensitive, wholeWord, regex, negated)
+        val filterExpression = FilterExpression.Term(text, caseSensitive, wholeWord, regex, negated)
         val lineItem = getLineItem(lineItemIndex)
 
         // Act
-        val result = FilterEvaluator.matches(lineItem, filterExpr)
+        val result = FilterEvaluator.matches(lineItem, filterExpression)
 
         // Assert
         Assertions.assertFalse(result)
@@ -234,11 +234,11 @@ class FilterEvaluatorTest {
         lineItemIndex: Int
     ) {
         // Arrange
-        val filterExpr = FilterExpr.Term(text, caseSensitive, wholeWord, regex, negated)
+        val filterExpression = FilterExpression.Term(text, caseSensitive, wholeWord, regex, negated)
         val lineItem = getLineItem(lineItemIndex)
 
         // Act
-        val result = FilterEvaluator.matches(lineItem, filterExpr)
+        val result = FilterEvaluator.matches(lineItem, filterExpression)
 
         // Assert
         Assertions.assertTrue(result)
@@ -262,11 +262,11 @@ class FilterEvaluatorTest {
         lineItemIndex: Int
     ) {
         // Arrange
-        val filterExpr = FilterExpr.Term(text, caseSensitive, wholeWord, regex, negated)
+        val filterExpression = FilterExpression.Term(text, caseSensitive, wholeWord, regex, negated)
         val lineItem = getLineItem(lineItemIndex)
 
         // Act
-        val result = FilterEvaluator.matches(lineItem, filterExpr)
+        val result = FilterEvaluator.matches(lineItem, filterExpression)
 
         // Assert
         Assertions.assertFalse(result)
@@ -290,11 +290,11 @@ class FilterEvaluatorTest {
         lineItemIndex: Int
     ) {
         // Arrange
-        val filterExpr = FilterExpr.Term(text, caseSensitive, wholeWord, regex, negated)
+        val filterExpression = FilterExpression.Term(text, caseSensitive, wholeWord, regex, negated)
         val lineItem = getLineItem(lineItemIndex)
 
         // Act
-        val result = FilterEvaluator.matches(lineItem, filterExpr)
+        val result = FilterEvaluator.matches(lineItem, filterExpression)
 
         // Assert
         Assertions.assertFalse(result)
@@ -304,12 +304,12 @@ class FilterEvaluatorTest {
     @Test
     fun `x AND y, return true`() {
         // Arrange
-        val childFilter1 = FilterExpr.Term("connected")
-        val childFilter2 = FilterExpr.Term("server")
-        val filterExpr = FilterExpr.Group(BooleanOp.AND, listOf(childFilter1, childFilter2))
+        val childFilter1 = FilterExpression.Term("connected")
+        val childFilter2 = FilterExpression.Term("server")
+        val filterExpression = FilterExpression.Group(BooleanOp.AND, listOf(childFilter1, childFilter2))
 
         // Act
-        val result = FilterEvaluator.matches(lineItem1, filterExpr)
+        val result = FilterEvaluator.matches(lineItem1, filterExpression)
 
         // Assert
         Assertions.assertTrue(result)
@@ -318,12 +318,12 @@ class FilterEvaluatorTest {
     @Test
     fun `x AND y, only one of them, return false`() {
         // Arrange
-        val childFilter1 = FilterExpr.Term("connected")
-        val childFilter2 = FilterExpr.Term("timeout")
-        val filterExpr = FilterExpr.Group(BooleanOp.AND, listOf(childFilter1, childFilter2))
+        val childFilter1 = FilterExpression.Term("connected")
+        val childFilter2 = FilterExpression.Term("timeout")
+        val filterExpression = FilterExpression.Group(BooleanOp.AND, listOf(childFilter1, childFilter2))
 
         // Act
-        val result = FilterEvaluator.matches(lineItem1, filterExpr)
+        val result = FilterEvaluator.matches(lineItem1, filterExpression)
 
         // Assert
         Assertions.assertFalse(result)
@@ -332,12 +332,12 @@ class FilterEvaluatorTest {
     @Test
     fun `x AND y, none of them, return false`() {
         // Arrange
-        val childFilter1 = FilterExpr.Term("possible")
-        val childFilter2 = FilterExpr.Term("timeout")
-        val filterExpr = FilterExpr.Group(BooleanOp.AND, listOf(childFilter1, childFilter2))
+        val childFilter1 = FilterExpression.Term("possible")
+        val childFilter2 = FilterExpression.Term("timeout")
+        val filterExpression = FilterExpression.Group(BooleanOp.AND, listOf(childFilter1, childFilter2))
 
         // Act
-        val result = FilterEvaluator.matches(lineItem1, filterExpr)
+        val result = FilterEvaluator.matches(lineItem1, filterExpression)
 
         // Assert
         Assertions.assertFalse(result)
@@ -346,12 +346,12 @@ class FilterEvaluatorTest {
     @Test
     fun `x OR y, return true`() {
         // Arrange
-        val childFilter1 = FilterExpr.Term("connected")
-        val childFilter2 = FilterExpr.Term("server")
-        val filterExpr = FilterExpr.Group(BooleanOp.OR, listOf(childFilter1, childFilter2))
+        val childFilter1 = FilterExpression.Term("connected")
+        val childFilter2 = FilterExpression.Term("server")
+        val filterExpression = FilterExpression.Group(BooleanOp.OR, listOf(childFilter1, childFilter2))
 
         // Act
-        val result = FilterEvaluator.matches(lineItem1, filterExpr)
+        val result = FilterEvaluator.matches(lineItem1, filterExpression)
 
         // Assert
         Assertions.assertTrue(result)
@@ -360,12 +360,12 @@ class FilterEvaluatorTest {
     @Test
     fun `x OR y, only one of them, return true`() {
         // Arrange
-        val childFilter1 = FilterExpr.Term("connected")
-        val childFilter2 = FilterExpr.Term("timeout")
-        val filterExpr = FilterExpr.Group(BooleanOp.OR, listOf(childFilter1, childFilter2))
+        val childFilter1 = FilterExpression.Term("connected")
+        val childFilter2 = FilterExpression.Term("timeout")
+        val filterExpression = FilterExpression.Group(BooleanOp.OR, listOf(childFilter1, childFilter2))
 
         // Act
-        val result = FilterEvaluator.matches(lineItem1, filterExpr)
+        val result = FilterEvaluator.matches(lineItem1, filterExpression)
 
         // Assert
         Assertions.assertTrue(result)
@@ -374,12 +374,12 @@ class FilterEvaluatorTest {
     @Test
     fun `x OR y, none of them, return false`() {
         // Arrange
-        val childFilter1 = FilterExpr.Term("possible")
-        val childFilter2 = FilterExpr.Term("timeout")
-        val filterExpr = FilterExpr.Group(BooleanOp.OR, listOf(childFilter1, childFilter2))
+        val childFilter1 = FilterExpression.Term("possible")
+        val childFilter2 = FilterExpression.Term("timeout")
+        val filterExpression = FilterExpression.Group(BooleanOp.OR, listOf(childFilter1, childFilter2))
 
         // Act
-        val result = FilterEvaluator.matches(lineItem1, filterExpr)
+        val result = FilterEvaluator.matches(lineItem1, filterExpression)
 
         // Assert
         Assertions.assertFalse(result)
@@ -388,11 +388,13 @@ class FilterEvaluatorTest {
     @Test
     fun `x AND y but NOT z, return true`() {
         // Arrange
-        val childFilter1 = FilterExpr.Term("connected")
-        val childFilter2 = FilterExpr.Term("server")
-        val childFilter3 = FilterExpr.Term("timeout", negated = true)
-        val filter1And2 = FilterExpr.Group(BooleanOp.AND, listOf(childFilter1, childFilter2))
-        val filter1And2ButNot3 = FilterExpr.Group(BooleanOp.AND, listOf(filter1And2, childFilter3))
+        val filter1And2ButNot3 = filter {
+            and {
+                term("connected")
+                term("server")
+                notTerm("timeout")
+            }
+        }
 
         // Act
         val result = FilterEvaluator.matches(lineItem1, filter1And2ButNot3)
@@ -404,17 +406,88 @@ class FilterEvaluatorTest {
     @Test
     fun `x AND y but NOT z, where NOT z is not present, return false`() {
         // Arrange
-        val childFilter1 = FilterExpr.Term("connected")
-        val childFilter2 = FilterExpr.Term("server")
-        val childFilter3 = FilterExpr.Term("INFO", negated = true)
-        val filter1And2 = FilterExpr.Group(BooleanOp.AND, listOf(childFilter1, childFilter2))
-        val filter1And2ButNot3 = FilterExpr.Group(BooleanOp.AND, listOf(filter1And2, childFilter3))
+        val filter1And2ButNot3 = filter {
+            and {
+                term("connected")
+                term("server")
+                notTerm("INFO")
+            }
+        }
 
         // Act
         val result = FilterEvaluator.matches(lineItem1, filter1And2ButNot3)
 
         // Assert
         Assertions.assertFalse(result)
+    }
+
+    @Test
+    fun `filter with AND`() {
+        // Arrange
+        val filterExpression = filter {
+            and {
+                term("error")
+                term("timeout")
+            }
+        }
+
+        // Act
+        val result = FilterEvaluator.filter(allLineItems, filterExpression)
+
+        // Assert
+        Assertions.assertTrue { lineItem3 in result }
+    }
+
+    @Test
+    fun `filter with multiple AND`() {
+        // Arrange
+        val filterExpression = filter {
+            and("error", "timeout")
+            and {
+                term(":")
+            }
+        }
+
+        // Act
+        val result = FilterEvaluator.filter(allLineItems, filterExpression)
+
+        // Assert
+        Assertions.assertTrue { lineItem3 in result }
+    }
+
+    @Test
+    fun `filter with OR`() {
+        // Arrange
+        val filterExpression = filter {
+            or {
+                term("error")
+                term("Err")
+            }
+        }
+
+        // Act
+        val result = FilterEvaluator.filter(allLineItems, filterExpression)
+
+        // Assert
+        Assertions.assertTrue { lineItem3 in result }
+        Assertions.assertTrue { lineItem4 in result }
+        Assertions.assertTrue { lineItem5 in result }
+        Assertions.assertTrue { lineItem6 in result }
+    }
+
+    @Test
+    fun `filter with multiple OR`() {
+        // Arrange
+        val filterExpression = filter {
+            or("error", "Err")
+            or { term("DEBUG") }
+        }
+
+        // Act
+        val result = FilterEvaluator.filter(allLineItems, filterExpression)
+
+        // Assert
+        Assertions.assertTrue { lineItem6 in result }
     }
 
     companion object {
@@ -424,6 +497,8 @@ class FilterEvaluatorTest {
         private val lineItem4 = LineItem(4, "[ERROR] Disk FULL")
         private val lineItem5 = LineItem(5, "[WARN] possible error case")
         private val lineItem6 = LineItem(6, "[error] DEBUG payload ignored")
+
+        private val allLineItems = listOf(lineItem1, lineItem2, lineItem3, lineItem4, lineItem5, lineItem6)
 
         private fun getLineItem(lineItemIndex: Int) = when (lineItemIndex) {
             1 -> lineItem1

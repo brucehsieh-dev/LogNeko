@@ -8,26 +8,32 @@ import app.brucehsieh.logneko.data.modal.LineItem
 object FilterEvaluator {
 
     /**
+     * Filter a list of lines to only those that match.
+     */
+    fun filter(lineItems: List<LineItem>, filterExpression: FilterExpression): List<LineItem> =
+        lineItems.filter { matches(it, filterExpression) }
+
+    /**
      * Check if a single line matches the given expression.
      */
-    fun matches(lineItem: LineItem, filterExpr: FilterExpr): Boolean =
-        when (filterExpr) {
+    fun matches(lineItem: LineItem, filterExpression: FilterExpression): Boolean =
+        when (filterExpression) {
             // Evaluate one condition
-            is FilterExpr.Term -> {
-                val result = matchTerm(lineItem.text, filterExpr)
-                if (filterExpr.negated) !result else result
+            is FilterExpression.Term -> {
+                val result = matchTerm(lineItem.text, filterExpression)
+                if (filterExpression.negated) !result else result
             }
 
-            is FilterExpr.Group -> when (filterExpr.op) {
-                BooleanOp.AND -> filterExpr.children.all { matches(lineItem, it) } // All must match
-                BooleanOp.OR -> filterExpr.children.any { matches(lineItem, it) } // At least one must match
+            is FilterExpression.Group -> when (filterExpression.op) {
+                BooleanOp.AND -> filterExpression.children.all { matches(lineItem, it) } // All must match
+                BooleanOp.OR -> filterExpression.children.any { matches(lineItem, it) } // At least one must match
             }
         }
 
     /**
      * Check if the text matches a Term with the given flags.
      */
-    private fun matchTerm(text: String, term: FilterExpr.Term): Boolean {
+    private fun matchTerm(text: String, term: FilterExpression.Term): Boolean {
         if (term.text.isEmpty()) return false
 
         // Normalize case if not case sensitive
