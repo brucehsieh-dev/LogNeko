@@ -73,4 +73,7 @@ sealed interface FilterExpression {
 /**
  * Defines the operators we support for groups.
  */
-enum class BooleanOp { AND, OR }
+enum class BooleanOp(val label: String) {
+    AND("All"),
+    OR("Any")
+}
