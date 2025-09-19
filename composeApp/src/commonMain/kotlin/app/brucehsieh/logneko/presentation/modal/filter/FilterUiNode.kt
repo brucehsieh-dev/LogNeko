@@ -35,9 +35,25 @@ sealed interface FilterUiNode {
     @Stable
     data class Group(
         override val id: String = UUID.randomUUID().toString(),
-        var booleanOp: BooleanOp = BooleanOp.AND,
         val children: SnapshotStateList<FilterUiNode> = mutableStateListOf()
-    ) : FilterUiNode
+    ) : FilterUiNode {
+
+        constructor(
+            id: String = UUID.randomUUID().toString(),
+            booleanOp: BooleanOp = BooleanOp.AND,
+            children: List<FilterUiNode> = emptyList()
+        ) : this(id) {
+            this.booleanOp = booleanOp
+            this.children.addAll(children)
+        }
+
+        constructor(booleanOp: BooleanOp, children: List<FilterUiNode> = emptyList()) : this() {
+            this.booleanOp = booleanOp
+            this.children.addAll(children)
+        }
+
+        var booleanOp: BooleanOp by mutableStateOf(BooleanOp.AND)
+    }
 
     /**
      * Editable leaf node (a single condition).

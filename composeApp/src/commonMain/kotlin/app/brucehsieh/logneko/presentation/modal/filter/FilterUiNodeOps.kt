@@ -77,7 +77,7 @@ fun FilterUiNode.Group.addGroup(booleanOp: BooleanOp, block: FilterUiNode.Group.
     FilterUiNode.Group(booleanOp = booleanOp).apply(block).also { children.add(it) }
 
 /**
- * Create and append a nested [Term], then return it.
+ * Create and append a nested [FilterUiNode.Term], then return it.
  * Example:
  *   group.addTerm { text = "timeout"; negated = true }
  */
