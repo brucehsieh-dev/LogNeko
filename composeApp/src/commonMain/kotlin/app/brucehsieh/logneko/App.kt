@@ -1,10 +1,24 @@
 package app.brucehsieh.logneko
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.runtime.*
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
@@ -13,7 +27,14 @@ import androidx.compose.ui.unit.sp
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.window.core.layout.WindowSizeClass
 import app.brucehsieh.logneko.presentation.MainScreenViewModel
-import app.brucehsieh.logneko.presentation.composable.*
+import app.brucehsieh.logneko.presentation.composable.AppBottomAppBar
+import app.brucehsieh.logneko.presentation.composable.AppNavigationRail
+import app.brucehsieh.logneko.presentation.composable.EdgeFontSizeAdjuster
+import app.brucehsieh.logneko.presentation.composable.FilterChipRow
+import app.brucehsieh.logneko.presentation.composable.LogLinePane
+import app.brucehsieh.logneko.presentation.composable.SearchHeader
+import app.brucehsieh.logneko.presentation.composable.ZoomableSurface
+import app.brucehsieh.logneko.presentation.composable.filter.FilterBuilder
 import app.brucehsieh.logneko.presentation.theme.withFontFamily
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -119,9 +140,10 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                             onDismissRequest = { showBottomSheet = false },
                             sheetState = sheetState
                         ) {
-                            FilterEditor(
-                                applyFilter = viewModel::onFilterApply,
-                                onDismiss = { showBottomSheet = false },
+                            FilterBuilder(
+                                initialFilterExpression = uiState.filterExpression,
+                                onFilterApply = viewModel::onFilterApply,
+                                onDismiss = { showBottomSheet = false }
                             )
                         }
                     }
