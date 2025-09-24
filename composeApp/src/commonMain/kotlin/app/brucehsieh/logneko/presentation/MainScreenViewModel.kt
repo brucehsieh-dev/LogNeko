@@ -18,6 +18,9 @@ import app.brucehsieh.logneko.data.JVM_FILE
 import app.brucehsieh.logneko.data.modal.LineItem
 import app.brucehsieh.logneko.data.modal.PagingDataMode
 import app.brucehsieh.logneko.data.paging.LineReader
+import app.brucehsieh.logneko.domain.filter.FilterEvaluator
+import app.brucehsieh.logneko.domain.filter.FilterExpression
+import app.brucehsieh.logneko.domain.filter.FilterExpression.Companion.prettify
 import app.brucehsieh.logneko.domain.manager.TextSearchManager
 import app.brucehsieh.logneko.domain.repository.FileLineRepository
 import app.brucehsieh.logneko.domain.searching.InMemorySearcher
@@ -28,7 +31,18 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.absolutePath
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.transformLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -89,8 +103,44 @@ class MainScreenViewModel(
         _filterQuery.value = filterQuery
     }
 
+    fun onFilterApply(filterExpression: FilterExpression) {
+        // TODO: return if empty
+
+        _uiState.update {
+            it.copy(
+                filtering = true,
+                filterExpression = filterExpression
+            )
+        }
+
+        val allLines = fileLineRepository.allLines.value
+        val filtered = FilterEvaluator.filter(allLines, filterExpression)
+        get<InMemorySearcher>().load(filtered)
+
+        viewModelScope.launch {
+            val prunedMatchesByLine = pruneMatchesByLine(uiState.value.matchesByLine, filtered)
+            if (prunedMatchesByLine.isNotEmpty()) {
+                searchNavigator.update(prunedMatchesByLine)
+            }
+            _uiState.update {
+                it.copy(
+                    displayedLineItems = filtered,
+                    filtering = false,
+                    filterQuery = filterExpression.prettify(),
+                    textQuerying = false,
+                    matchesByLine = prunedMatchesByLine,
+                    searchHits = searchNavigator.searchHits,
+                    activeSearchHitIndex = searchNavigator.activeSearchHitIndex
+                )
+            }
+        }
+    }
+
     fun onFilterClear() {
-        _filterQuery.value = ""
+        get<InMemorySearcher>().load(fileLineRepository.allLines.value)
+        _uiState.update {
+            it.copy(filterQuery = "", displayedLineItems = fileLineRepository.allLines.value, filterExpression = null)
+        }
     }
 
     fun onTextQueryChange(textQuery: String) {
