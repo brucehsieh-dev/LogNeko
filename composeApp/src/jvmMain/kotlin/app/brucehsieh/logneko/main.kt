@@ -27,8 +27,8 @@ fun main() = application {
     ) {
         window.minimumSize = with(LocalDensity.current) {
             Dimension(
-                400.dp.roundToPx(),
-                600.dp.roundToPx()
+                150.dp.roundToPx(),
+                100.dp.roundToPx()
             )
         }
 
