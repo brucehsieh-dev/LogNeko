@@ -16,6 +16,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun AppNavigationRail(
     hasFileLoaded: Boolean,
+    showSearchUi: Boolean,
     onOpenFileUi: () -> Unit,
     onSearchUi: () -> Unit,
     onFilterUi: () -> Unit,
@@ -29,7 +30,7 @@ fun AppNavigationRail(
             label = { Text("File") }
         )
         NavigationRailItem(
-            selected = false,
+            selected = showSearchUi,
             onClick = onSearchUi,
             icon = { Icon(imageVector = Icons.Outlined.Search, contentDescription = "Search in file") },
             enabled = hasFileLoaded,
@@ -58,6 +59,7 @@ fun AppNavigationRailPreview() {
     MaterialTheme {
         AppNavigationRail(
             hasFileLoaded = true,
+            showSearchUi = true,
             onOpenFileUi = {},
             onSearchUi = {},
             onFilterUi = {},

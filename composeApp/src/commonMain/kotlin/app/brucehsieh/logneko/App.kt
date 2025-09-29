@@ -117,6 +117,7 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                 if (windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
                     AppNavigationRail(
                         hasFileLoaded = uiState.hasFile,
+                        showSearchUi = showSearchUi,
                         onOpenFileUi = viewModel::openFilePicker,
                         onSearchUi = { showSearchUi = !showSearchUi },
                         onFilterUi = { showBottomSheet = !showBottomSheet },

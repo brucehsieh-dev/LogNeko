@@ -52,6 +52,7 @@ fun AppBottomAppBar(
             TooltipSquareChip(
                 tooltipText = "Jump to line",
                 chipIcon = Icons.Outlined._123,
+                enabled = hasFileLoaded,
                 selected = false,
                 onClick = onJumpToLineUi
             )
@@ -59,6 +60,7 @@ fun AppBottomAppBar(
             TooltipSquareChip(
                 tooltipText = "Set filters",
                 chipIcon = Icons.Outlined.Tune,
+                enabled = hasFileLoaded,
                 selected = false,
                 onClick = onFilterUi
             )
@@ -66,6 +68,7 @@ fun AppBottomAppBar(
             TooltipSquareChip(
                 tooltipText = "Search",
                 chipIcon = Icons.Outlined.Search,
+                enabled = hasFileLoaded,
                 selected = showSearchUi,
                 onClick = onSearchUi
             )

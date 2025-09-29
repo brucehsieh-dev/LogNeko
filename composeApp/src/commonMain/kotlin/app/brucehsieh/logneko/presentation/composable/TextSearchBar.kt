@@ -8,6 +8,7 @@ import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
@@ -29,7 +30,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,12 +50,15 @@ fun TextSearchBar(
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
+    // Lock the height of the search bar to avoid height jumps while typing
+    val barHeight = 56.dp
+
     Surface(
         shape = RoundedCornerShape(8.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         tonalElevation = 0.dp,
         shadowElevation = 0.dp,
-        modifier = modifier
+        modifier = modifier.height(barHeight)
     ) {
         SearchBarDefaults.InputField(
             query = searchQuery,
@@ -60,7 +66,7 @@ fun TextSearchBar(
             onSearch = { onSearch(searchQuery) },
             expanded = false,
             onExpandedChange = {},
-            placeholder = { Text("Search in file") },
+            placeholder = { Text(text = "Find in file", maxLines = 1, overflow = TextOverflow.Ellipsis) },
             leadingIcon = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -95,7 +101,11 @@ fun TextSearchBar(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        Text("$activeMatch / $totalMatches", style = MaterialTheme.typography.labelSmall)
+                        Text(
+                            text = "$activeMatch / $totalMatches",
+                            letterSpacing = 0.1.sp,
+                            style = MaterialTheme.typography.labelSmall
+                        )
                         Icon(
                             imageVector = Icons.Default.ArrowUpward,
                             contentDescription = "Previous",
