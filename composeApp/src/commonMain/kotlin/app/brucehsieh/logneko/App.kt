@@ -116,9 +116,11 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
 
                 if (windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
                     AppNavigationRail(
-                        isFilterEnabled = uiState.hasFile,
-                        onOpenFile = viewModel::openFilePicker,
-                        onToggleFilterSheet = { showBottomSheet = !showBottomSheet }
+                        hasFileLoaded = uiState.hasFile,
+                        onOpenFileUi = viewModel::openFilePicker,
+                        onSearchUi = { showSearchUi = !showSearchUi },
+                        onFilterUi = { showBottomSheet = !showBottomSheet },
+                        onJumpToLineUi = {}
                     )
                 }
 
@@ -134,18 +136,22 @@ fun App(viewModel: MainScreenViewModel = koinViewModel()) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
                             if (windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
-                                TextSearchBar(
-                                    searchQuery = uiState.textQuery,
-                                    onSearchQueryChange = viewModel::onTextQueryChange,
-                                    onSearch = { /* handled in ViewModel */ },
-                                    activeMatch = uiState.activeSearchHitIndex.plus(1),
-                                    totalMatches = uiState.searchHits.size,
-                                    onPrevious = viewModel::prevMatch,
-                                    onNext = viewModel::nextMatch,
-                                    onDismiss = {
-                                        // TODO: Hide search bar
-                                    }
-                                )
+                                AnimatedVisibility(
+                                    visible = showSearchUi,
+                                    enter = fadeIn() + expandVertically(),
+                                    exit = fadeOut() + shrinkVertically()
+                                ) {
+                                    TextSearchBar(
+                                        searchQuery = uiState.textQuery,
+                                        onSearchQueryChange = viewModel::onTextQueryChange,
+                                        onSearch = { /* handled in ViewModel */ },
+                                        activeMatch = uiState.activeSearchHitIndex.plus(1),
+                                        totalMatches = uiState.searchHits.size,
+                                        onPrevious = viewModel::prevMatch,
+                                        onNext = viewModel::nextMatch,
+                                        onDismiss = { showSearchUi = false }
+                                    )
+                                }
                             }
 
                             // Filter chip row (visible only when filter is active)
