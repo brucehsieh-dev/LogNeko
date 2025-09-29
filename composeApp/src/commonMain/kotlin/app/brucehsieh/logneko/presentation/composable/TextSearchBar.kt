@@ -101,6 +101,7 @@ fun TextSearchBar(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
+                        HorSpace2dp()
                         Text(
                             text = "$activeMatch / $totalMatches",
                             letterSpacing = 0.1.sp,

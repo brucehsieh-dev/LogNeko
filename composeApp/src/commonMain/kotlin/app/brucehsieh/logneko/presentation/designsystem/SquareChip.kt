@@ -3,6 +3,7 @@ package app.brucehsieh.logneko.presentation.designsystem
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -55,16 +56,19 @@ fun SquareChip(
         enabled = enabled,
         shape = MaterialTheme.shapes.small,
         tonalElevation = if (selected) 2.dp else 0.dp,
-        color = if (selected) {
+        color = if (selected)
             MaterialTheme.colorScheme.secondaryContainer
-        } else {
+        else
             MaterialTheme.colorScheme.surfaceContainer
-        }
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = icon,
-                contentDescription = null
+                contentDescription = null,
+                tint = if (!enabled)
+                    LocalContentColor.current.copy(alpha = 0.38f)
+                else
+                    LocalContentColor.current
             )
         }
     }
