@@ -1,26 +1,22 @@
 package app.brucehsieh.logneko.presentation.composable.filter
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.offset
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Layers
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Remove
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import app.brucehsieh.logneko.domain.filter.filter
+import app.brucehsieh.logneko.presentation.composable.shape8dp
+import app.brucehsieh.logneko.presentation.mapper.toUiFilterTree
 import app.brucehsieh.logneko.presentation.modal.filter.FilterUiNode
 import app.brucehsieh.logneko.presentation.modal.filter.removeNode
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterGroup(
     root: FilterUiNode.Group,
@@ -31,48 +27,41 @@ fun FilterGroup(
     onRemoveNode: (String) -> Boolean,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.offset(x = (level * 12).dp).background(Color.Gray.copy(alpha = level * 0.1f))) {
-        Text(text = "level $level")
-
+    val offsetDp = 12.dp
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        modifier = modifier.fillMaxWidth().padding(
+            start = if (level == 1) 0.dp else offsetDp
+        ),
+        shape = shape8dp
+    ) {
         Row {
-            FilterBooleanField(filterUiNodeGroup)
-            IconButton(onClick = { onAddGroup(filterUiNodeGroup.id) }) {
-                Icon(
-                    imageVector = Icons.Outlined.Layers,
-                    contentDescription = "Add Group"
-                )
-            }
-            IconButton(onClick = { onAddTerm(filterUiNodeGroup.id) }) {
-                Icon(
-                    imageVector = Icons.Rounded.Add,
-                    contentDescription = "Add Term"
-                )
-            }
-            if (level > 1) {
-                IconButton(onClick = { onRemoveNode(filterUiNodeGroup.id) }) {
-                    Icon(
-                        imageVector = Icons.Rounded.Remove,
-                        contentDescription = "Remove Group"
-                    )
-                }
-            }
-        }
-        filterUiNodeGroup.children.forEachIndexed { index, child ->
-            when (child) {
-                is FilterUiNode.Group -> FilterGroup(
-                    root = root,
-                    filterUiNodeGroup = child,
-                    level = level + 1,
+            Column {
+                FilterBooleanFieldRow(
+                    filterUiNodeGroup = filterUiNodeGroup,
+                    level = level,
                     onAddGroup = onAddGroup,
                     onAddTerm = onAddTerm,
                     onRemoveNode = onRemoveNode
                 )
+                filterUiNodeGroup.children.forEachIndexed { index, child ->
+                    when (child) {
+                        is FilterUiNode.Group -> FilterGroup(
+                            root = root,
+                            filterUiNodeGroup = child,
+                            level = level + 1,
+                            onAddGroup = onAddGroup,
+                            onAddTerm = onAddTerm,
+                            onRemoveNode = onRemoveNode
+                        )
 
-                is FilterUiNode.Term -> FilterTermField(
-                    root = root,
-                    filterUiNodeTerm = child,
-                    onRemove = { onRemoveNode(child.id) }
-                )
+                        is FilterUiNode.Term -> FilterTermRow(
+                            root = root,
+                            filterUiNodeTerm = child,
+                            onRemove = { onRemoveNode(child.id) }
+                        )
+                    }
+                }
             }
         }
     }
@@ -81,13 +70,30 @@ fun FilterGroup(
 @Preview
 @Composable
 fun FilterGroupPreview() {
-    val root = FilterUiNode.Group()
-    FilterGroup(
-        root = root,
-        filterUiNodeGroup = root,
-        level = 2,
-        onAddGroup = { true },
-        onAddTerm = { true },
-        onRemoveNode = { root.removeNode(it) }
-    )
+    val root = filter {
+        and {
+            term("abc")
+            or {
+                term("ball")
+                term("duck", negated = true)
+                and {
+                    term("cat")
+                    term("dog", negated = true)
+                }
+            }
+        }
+    }.toUiFilterTree() as FilterUiNode.Group
+
+    Box(
+        modifier = Modifier.padding(4.dp)
+    ) {
+        FilterGroup(
+            root = root,
+            filterUiNodeGroup = root,
+            level = 1,
+            onAddGroup = { true },
+            onAddTerm = { true },
+            onRemoveNode = { root.removeNode(it) }
+        )
+    }
 }

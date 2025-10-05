@@ -1,8 +1,9 @@
 package app.brucehsieh.logneko.presentation.composable.filter
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Text
@@ -55,28 +56,31 @@ fun FilterBuilder(
         }
     }
 
-    Column {
-        Box(modifier = modifier.fillMaxWidth()) {
-            if (rootUiFilterNode is FilterUiNode.Group) {
-                FilterGroup(
-                    root = rootUiFilterNode as FilterUiNode.Group,
-                    filterUiNodeGroup = rootUiFilterNode as FilterUiNode.Group,
-                    level = 1,
-                    onAddGroup = { parentGroupId ->
-                        (rootUiFilterNode as FilterUiNode.Group).addGroupUnder(
-                            parentGroupId = parentGroupId,
-                            booleanOp = (rootUiFilterNode as FilterUiNode.Group).booleanOp,
-                            block = {}
-                        ) != null
-                    },
-                    onAddTerm = { parentGroupId ->
-                        (rootUiFilterNode as FilterUiNode.Group).addTermUnder(parentGroupId) != null
-                    },
-                    onRemoveNode = { nodeId ->
-                        (rootUiFilterNode as FilterUiNode.Group).removeNode(nodeId)
-                    }
-                )
-            }
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+    ) {
+        if (rootUiFilterNode is FilterUiNode.Group) {
+            FilterGroup(
+                root = rootUiFilterNode as FilterUiNode.Group,
+                filterUiNodeGroup = rootUiFilterNode as FilterUiNode.Group,
+                level = 1,
+                onAddGroup = { parentGroupId ->
+                    (rootUiFilterNode as FilterUiNode.Group).addGroupUnder(
+                        parentGroupId = parentGroupId,
+                        booleanOp = (rootUiFilterNode as FilterUiNode.Group).booleanOp,
+                        block = {}
+                    ) != null
+                },
+                onAddTerm = { parentGroupId ->
+                    (rootUiFilterNode as FilterUiNode.Group).addTermUnder(parentGroupId) != null
+                },
+                onRemoveNode = { nodeId ->
+                    (rootUiFilterNode as FilterUiNode.Group).removeNode(nodeId)
+                }
+            )
         }
 
         FilledTonalButton(

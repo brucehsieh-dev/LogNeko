@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import app.brucehsieh.logneko.presentation.composable.shape8dp
 
 @Composable
 fun SquareChip(
@@ -25,7 +26,7 @@ fun SquareChip(
         onClick = onClick,
         modifier = Modifier.size(48.dp),
         enabled = enabled,
-        shape = MaterialTheme.shapes.small,
+        shape = shape8dp,
         tonalElevation = if (selected) 2.dp else 0.dp,
         color = if (selected) {
             MaterialTheme.colorScheme.secondaryContainer

@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import app.brucehsieh.logneko.domain.filter.BooleanOp
 import app.brucehsieh.logneko.domain.filter.FilterExpression
+import app.brucehsieh.logneko.domain.modal.TermOp
 import app.brucehsieh.logneko.presentation.modal.filter.FilterUiNode.Companion.toFilterExpression
 import java.util.UUID
 
@@ -86,6 +87,15 @@ sealed interface FilterUiNode {
             this.wholeWord = wholeWord
             this.regex = regex
             this.negated = negated
+        }
+
+        companion object {
+            fun Term.addCondition(termOp: TermOp) {
+                when (termOp) {
+                    TermOp.CONTAINS -> negated = false
+                    TermOp.DOES_NOT_CONTAIN -> negated = true
+                }
+            }
         }
     }
 
